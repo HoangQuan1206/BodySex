@@ -1,5 +1,5 @@
 getgenv().OneClickUi = true
-getgenv().UiCheckItems = true
+getgenv().UiCheckItems = false
 
     getgenv().OneClickSetting = {
         Enable= true,
