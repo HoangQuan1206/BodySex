@@ -1,4 +1,4 @@
-getgenv().OneClickUi = true, -- Only Open Necessacry Ui For One Click
+getgenv().OneClickUi = true
     getgenv().UiCheckItems = false,
     getgenv().OneClickSetting = {
         Enable= true,
