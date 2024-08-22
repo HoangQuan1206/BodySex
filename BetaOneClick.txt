@@ -23,7 +23,6 @@ getgenv().OneClickUi = true, -- Only Open Necessacry Ui For One Click
         FarmItems = true, --Turn off If Want Focus Level And CDK, THis Only get After You Get God Human
         DisableSoulGuitar = false,
         DisableCDK = false,
-
     }
     getgenv().OneClickFarms = {
         ["Shark Anchor"] = true,
