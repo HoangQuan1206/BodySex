@@ -1,6 +1,6 @@
 getgenv().SetFpsCap = false
 getgenv().FpsCap = 10
-getgenv().OneClickUi = false -- Only Open Necessacry Ui For One Click
+getgenv().OneClickUi = true -- Only Open Necessacry Ui For One Click
 getgenv().FpsBoost1 = false
     getgenv().WhiteScreen = false
     getgenv().UiCheckItems = false
