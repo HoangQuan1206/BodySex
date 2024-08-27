@@ -1,0 +1,31 @@
+script_key = "Put Your Keys Here"
+getgenv().SetFpsCap = false 
+getgenv().FpsCap = 30
+    getgenv().UiCheckItems = false
+    getgenv().WhiteScreen = false
+    getgenv().OneClickSetting = {
+        Enable=true,
+        UnlimitGetQuest=true,
+        TripleQuest=true,
+        AutoAddStats=true,
+        RedeemCode=true,
+        Sea2KeyHop=true,
+        FruitEat = { --Priority, Name, 
+            [1] = {"Ice-Ice","Magma-Magma","Flame-Flame","Rumble-Rumble","Buddha-Buddha","Quake-Quake","Dark-Dark","Sand-Sand","Spider-Spider","Light-Light",},
+            [2] = {"Dough-Dough","Kitsune-Kitsune","Leopard-Leopard","Dragon-Dragon","Spirit-Spirit","Venom-Venom","Shadow-Shadow","T-Rex-T-Rex","Mammoth-Mammoth","Blizzard-Blizzard","Sound-Sound",}
+        },
+        EatFruitFromStorage = true,
+        SnipeFruit = true,
+        SnipeFruitMirage = true,
+        HopIfFoundNearExploiter = true,
+        HopHakiColor =false,
+        HopTushita = true,
+        HopValkyriehelm = true,
+        HopMirrorFractal=true,
+        FarmPole = true, -- Turn off If Want Focus Level
+        FarmItems = true, --Turn off If Want Focus Level And CDK, THis Only get After You Get God Human
+        DisableSoulGuitar = false,
+        DisableCDK = false,
+    }
+getgenv().Team = "Pirates"
+loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/6defa760de515eaa9b060a2aee22fbb8.lua"))()
