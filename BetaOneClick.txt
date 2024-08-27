@@ -1,4 +1,8 @@
+getgenv().SetFpsCap = false
+getgenv().FpsCap = 10
 getgenv().OneClickUi = true -- Only Open Necessacry Ui For One Click
+getgenv().FpsBoost1 = false
+    getgenv().WhiteScreen = false
     getgenv().UiCheckItems = false
     getgenv().OneClickSetting = {
         Enable=true,
@@ -6,7 +10,7 @@ getgenv().OneClickUi = true -- Only Open Necessacry Ui For One Click
         TripleQuest=true,
         AutoAddStats=true,
         RedeemCode=true,
-        Sea2KeyHop=false,
+        Sea2KeyHop=true,
         FruitEat = { --Priority, Name, 
             [1] = {"Ice-Ice","Magma-Magma","Flame-Flame","Rumble-Rumble","Buddha-Buddha","Quake-Quake","Dark-Dark","Sand-Sand","Spider-Spider","Light-Light",},
             [2] = {"Dough-Dough","Kitsune-Kitsune","Leopard-Leopard","Dragon-Dragon","Spirit-Spirit","Venom-Venom","Shadow-Shadow","T-Rex-T-Rex","Mammoth-Mammoth","Blizzard-Blizzard","Sound-Sound",}
@@ -29,5 +33,5 @@ getgenv().OneClickUi = true -- Only Open Necessacry Ui For One Click
         ["Shark Anchor"] = true,
     }
 getgenv().Team = "Pirates"
-getgenv().AutoLoad = true --Will Load Script On Server Hop
+getgenv().AutoLoad = false --Will Load Script On Server Hop
  loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/3b2169cf53bc6104dabe8e19562e5cc2.lua"))()
