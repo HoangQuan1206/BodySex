@@ -1,4 +1,4 @@
-script_key = "pyiRWHDKgOjmZKnTBYVVFIUAyzVhNHcc"
+
 getgenv().SetFpsCap = false 
 getgenv().FpsCap = 30
     getgenv().UiCheckItems = false
