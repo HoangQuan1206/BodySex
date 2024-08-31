@@ -1,4 +1,3 @@
-script_key = "pyiRWHDKgOjmZKnTBYVVFIUAyzVhNHcc"
 getgenv().SetFpsCap = false
 getgenv().FpsCap = 10
 getgenv().OneClickUi = true -- Only Open Necessacry Ui For One Click
