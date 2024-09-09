@@ -1,0 +1,65 @@
+getgenv().AutoLoadScript = true 
+getgenv().AutoRejoin = true
+getgenv().Hide_UI = true 
+getgenv().BlackScreen = false
+_G.HopFruit1M = true
+_G.KaitunConfig = {
+    ["Actions Allowed"] = {
+      ["Awakening Fruit"] = false,
+      ["Shark Anchor"] = false,
+      ["Mirror Fractal"] = true,
+      ["Soul Guitar"] = true,
+      ["Pole (1st Form)"] = false,
+      ["Upgrading Race"] = true,
+      ["Farming Boss Drop When Maxed Level"] = false,
+      ["Rainbown Haki"] = false,
+      ["Cursed Dual Katana"] = true,
+      ["Buy accessories"] = false,
+      ["Buy Hakis"] = true,
+      ["Buy Guns"] = false,
+      ["Buy Swords"] = false,
+      ["Upgrade Weapons"] = false,
+      ["Farming Boss Drops When X2 Expired"] = true,
+      ["Mirage Puzzle"] = true,
+      ["Saber"] = true
+    },
+    ["Fps Boosting"] = false,
+    ["Fruit Snipping"] = true,
+    ["Fruit Eating"] = false,
+    ["High Ping Hop"] = true,
+    ["Fruit Choosen"] = {
+      ["T-Rex-T-Rex"] = true,
+      ["Shadow-Shadow"] = true,
+      ["Mammoth-Mammoth"] = true,
+      ["Gravity-Gravity"] = true,
+      ["Spirit-Spirit"] = true,
+      ["Dark-Dark"] = true,
+      ["Rocket-Rocket"] = true,
+      ["Control-Control"] = true,
+      ["Dough-Dough"] = true,
+      ["Leopard-Leopard"] = true,
+      ["Venom-Venom"] = true,
+      ["Dragon-Dragon"] = true,
+      ["Diamond-Diamond"] = true,
+      ["Kitsune-Kitsune"] = true,
+      ["Spring-Spring"] = true
+    },
+    ['Auto Switch Melee'] = false,
+    ["Player Nearing Hop"] = true,
+    ["Allow Stored"] = true,
+    ["Race Choosen"] = {
+      ["Fishman"] = true
+    },
+    ["Tushita Hopping"] = true,
+    ["Rip Indra Hopping"] = true,
+    ["Mirage Hopping"] = true,
+    ["Race Snipping"] = true,
+    ["Tween Speed"] = 350,
+    ["Same Y Tween"] = true,
+}
+repeat 
+  pcall(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/memaybeohub/NewPage/main/Kaitun.lua'))()
+  end)
+  task.wait()
+until 1 < 0
