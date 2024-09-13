@@ -48,7 +48,7 @@ _G.Gun = {
 
 
 _G.Fruit = { 
-    ['Main Fruit'] = {'Dough-Dough','Kitsune-Kitsune','Leopard-Leopard','Dragon-Dragon','Spirit-Spirit','Venom-Venom','Shadow-Shadow','T-Rex-T-Rex','Mammoth-Mammoth','Blizzard-Blizzard','Sound-Sound'}
+    ['Main Fruit'] = {'Dough-Dough','Kitsune-Kitsune','Leopard-Leopard','Dragon-Dragon','Spirit-Spirit','Venom-Venom','Shadow-Shadow','T-Rex-T-Rex','Mammoth-Mammoth','Blizzard-Blizzard','Sound-Sound'},
     ['Select Fruit'] = {'Ice-Ice','Magma-Magma','Flame-Flame','Rumble-Rumble','Buddha-Buddha','Quake-Quake','Dark-Dark','Sand-Sand','Spider-Spider,'Light-Light'}
 }
 
