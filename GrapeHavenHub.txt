@@ -1,0 +1,61 @@
+_G.Setting = {
+    ['FPS Boost'] = false,
+    ['White Screen'] = false
+}
+_G.Fruit = { 
+    ['Main Fruit'] = {'Kitsune-Kitsune','Leopard-Leopard','Dragon-Dragon','Spirit-Spirit','Venom-Venom','Shadow-Shadow','Dough-Dough','T-Rex-T-Rex','Mammoth-Mammoth','Gravity-Gravity','Blizzard-Blizzard','Pain-Pain','Rumble-Rumble'},
+    ['Select Fruit'] = {'Flame-Flame','Ice-Ice','Sand-Sand','Dark-Dark','Light-Light','Magma-Magma','Quake-Quake','Spider-Spider','Sound-Sound','Buddha-Buddha',}
+}
+_G.Race = { 
+    ['Select Race'] = {'Human','Fishman','Skypiea','Mink'},
+    ['Lock Race'] = true,
+    ['Quest Race V3'] = true
+}
+_G.Melee = { 
+    ['Superhuman'] = true,
+    ['Death Step'] = true,
+    ['Sharkman Karate'] = true,
+    ['Electric Claw'] = true,
+    ['Dragon Talon'] = true,
+    ['Godhuman'] = true
+}
+_G.Sword = { 
+    ['Saber'] = true,
+    ['Midnight Blade'] = true,
+    ['Shark Anchor'] = true
+    ['Shisui'] = true,
+    ['Saddi'] = true,
+    ['Wando'] = true,
+    ['Koko'] = false,
+    ['Rengoku'] = true,
+    ['Canvander'] = true,
+    ['Buddy Sword'] = true,
+    ['Twin Hooks'] = true,
+    ['SpikeyTrident'] = true,
+    ['Hallow Scryte'] = true,
+    ['Dark Dagger'] = true,
+    ['Yama'] = true,
+    ['Tushita'] = true,
+    ['True Triple Katana'] = true,
+    ['Cursed Dual Katana'] = true
+}
+_G.Gun = {
+    ['Kabucha'] = true,
+    ['Acidum Rifle'] = true,
+    ['Soul Guitar'] = true, 
+    ['Serpent Bow'] = true
+}
+_G.Quest = { 
+    ['Quest Aura Haki'] = true,
+    ['Quest Race V4'] = true,
+    ['Quest Dough Awaken'] = true,
+    ['Quest Kill Boss'] = true
+}
+_G.Mastery = { 
+    ['Melee'] = true,
+    ['Sword'] = true,
+    ['Fruit'] = true,
+    ['Gun'] = true,
+}
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/0x739/lua/main/Kaitun.lua"))()
