@@ -64,4 +64,9 @@ _G.KaitunConfig = {
     ["Tween Speed"] = 350,
     ["Same Y Tween"] = true
 }
-loadstring(game:HttpGet('https://raw.githubusercontent.com/memaybeohub/NewPage/main/Kaitun.lua'))()
+repeat 
+  pcall(function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/memaybeohub/NewPage/main/Kaitun.lua'))()
+  end)
+  task.wait()
+until 1 < 0
