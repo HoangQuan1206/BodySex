@@ -35,8 +35,8 @@ getgenv().Configs = {
     ["Find Fruit"] = true, -- Will find 1m+ fruit to unlock swan door to access third sea
     ["Cursed Dual Katana"] = true,
     ["Switch Melee"] = true,
-    ["Eat Fruit"] = "", -- leave blank for none, put the fruit name like this example: Smoke Fruit, T-Rex Fruit, ...
-    ["Snipe Fruit"] = "", -- leave blank for none, put the fruit name like this example: Smoke Fruit, T-Rex Fruit, ...
+    ["Eat Fruit"] = "Dough-Dough","Kitsune-Kitsune","Leopard-Leopard","Dragon-Dragon","Spirit-Spirit","Venom-Venom","Shadow-Shadow","T-Rex-T-Rex","Mammoth-Mammoth","Blizzard-Blizzard","Sound-Sound","Yeti-Yeti","Gas-Gas",
+    ["Snipe Fruit"] = "Dough-Dough","Kitsune-Kitsune","Leopard-Leopard","Dragon-Dragon","Spirit-Spirit","Venom-Venom","Shadow-Shadow","T-Rex-T-Rex","Mammoth-Mammoth","Blizzard-Blizzard","Sound-Sound","Yeti-Yeti","Gas-Gas",
     ["Lock Fragment"] = 1000000,
     ["Buy Stuffs"] = true -- buso, geppo, soru, ken haki, ...
 }
