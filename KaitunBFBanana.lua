@@ -203,7 +203,7 @@ end
 -- =========================
 -- AUTO REJOIN KHI DISCONNECT (và gửi webhook trước khi rejoin)
 -- =========================
-local errorMSG = { "you were kicked", "disconnected", "lost connection", "267", "279", "769" }
+local errorMSG = { "you were kicked", "disconnected", "lost connection", "267", "279", "769","771" }
 task.spawn(function()
     while task.wait(1) do
         local promptGui = game.CoreGui:FindFirstChild("RobloxPromptGui")
