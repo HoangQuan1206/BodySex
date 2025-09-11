@@ -75,15 +75,15 @@ _G.Settings_Melee = {
 _G.SwordSettings = {
     ['Saber'] = true,
     ["Pole"] = false,
-    ['MidnightBlade'] = true,
+    ['MidnightBlade'] = false,
     ['Shisui'] = true,
     ['Saddi'] = true,
     ['Wando'] = true,
     ['Yama'] = true,
-    ['Rengoku'] = true,
-    ['Canvander'] = true,
-    ['BuddySword'] = true,
-    ['TwinHooks'] = true,
+    ['Rengoku'] = false,
+    ['Canvander'] = false,
+    ['BuddySword'] = false,
+    ['TwinHooks'] = false,
     ['HallowScryte'] = true,
     ['TrueTripleKatana'] = true,
     ['CursedDualKatana'] = true
@@ -91,7 +91,7 @@ _G.SwordSettings = {
 
 _G.GunSettings = {
     ['Kabucha'] = true,
-    ['SerpentBow'] = true,
+    ['SerpentBow'] = false,
     ['SoulGuitar'] = true
 }
 
