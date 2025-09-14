@@ -173,22 +173,29 @@ Race: %s```]],
     local itemsText = "```" .. table.concat(itemsList, "\n") .. "```"
 
     -- Fruits
-    local fruitsList = {}
-    local inv = game:GetService("ReplicatedStorage").Remotes.CommF_
-    local ok, res = pcall(function()
-        return inv:InvokeServer("getInventory")
-    end)
-    if ok and res then
-        for _, v in pairs(res) do
+-- Fruits
+local fruitsList = {}
+local inv = game:GetService("ReplicatedStorage").Remotes.CommF_
+local ok, res = pcall(function()
+    return inv:InvokeServer("getInventory")
+end)
+
+if ok and res then
+    for _, v in pairs(res) do
+        if v.Type and v.Type == "Blox Fruit" then
             local fruitName = v.Name
             local price = fruitPrices[fruitName] or "???"
             table.insert(fruitsList, "🟢 " .. fruitName .. " (" .. price .. " Beli)")
         end
     end
-    if #fruitsList == 0 then
-        fruitsList = { "🔴 Không có fruit nào trong rương" }
-    end
-    local fruitsText = "```" .. table.concat(fruitsList, "\n") .. "```"
+end
+
+if #fruitsList == 0 then
+    fruitsList = { "🔴 Không có fruit nào trong rương" }
+end
+
+local fruitsText = "```" .. table.concat(fruitsList, "\n") .. "```"
+
 
     -- Embed
     local embed = {
