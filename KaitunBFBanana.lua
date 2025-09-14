@@ -176,7 +176,7 @@ Race: %s```]],
     local fruitsList = {}
     local inv = game:GetService("ReplicatedStorage").Remotes.CommF_
     local ok, res = pcall(function()
-        return inv:InvokeServer("getInventoryFruits")
+        return inv:InvokeServer("getInventory")
     end)
     if ok and res then
         for _, v in pairs(res) do
