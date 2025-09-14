@@ -51,7 +51,7 @@ getgenv().SettingFarm = {
     },
     ["Auto Summon Rip Indra"] = true,
     ["Select Hop"] = {
-        ["Hop Server If Have Player Near"] = false,
+        ["Hop Server If Have Player Near"] = true,
         ["Hop Find Rip Indra Get Valkyrie Helm or Get Tushita"] = true,
         ["Hop Find Dough King Get Mirror Fractal"] = true,
         ["Hop Find Raids Castle [CDK]"] = true,
@@ -80,17 +80,15 @@ getgenv().SettingFarm = {
         ["WebhookUrl"] = "https://discord.com/api/webhooks/1411194628006219776/16nlkh3LpQruj5D25URDUIsABPZnVTNa44YoycfwM-wIMNParpTuf7lHzb2r4wmhX8JH",
     }
 }
-
 -- =========================
 -- LOAD SCRIPT CHÍNH
 -- =========================
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 
 -- =========================
--- HÀM GỬI REQUEST (tương thích nhiều executor)
+-- HÀM GỬI REQUEST
 -- =========================
 local HttpService = game:GetService("HttpService")
-
 local function sendRawRequest(url, body)
     local headers = { ["Content-Type"] = "application/json" }
     if syn and syn.request then
@@ -107,12 +105,29 @@ local function sendRawRequest(url, body)
 end
 
 -- =========================
--- HÀM GỬI WEBHOOK (dùng embed Banana Config)
+-- GIÁ FRUIT
+-- =========================
+local fruitPrices = {
+    ["Rocket-Rocket"] = 5000, ["Spin-Spin"] = 7500, ["Chop-Chop"] = 30000, ["Spring-Spring"] = 60000,
+    ["Bomb-Bomb"] = 80000, ["Smoke-Smoke"] = 100000, ["Spike-Spike"] = 180000, ["Flame-Flame"] = 250000,
+    ["Falcon-Falcon"] = 300000, ["Ice-Ice"] = 350000, ["Sand-Sand"] = 420000, ["Dark-Dark"] = 500000,
+    ["Diamond-Diamond"] = 600000, ["Light-Light"] = 650000, ["Rubber-Rubber"] = 750000,
+    ["Barrier-Barrier"] = 800000, ["Ghost-Ghost"] = 850000, ["Magma-Magma"] = 950000,
+    ["Quake-Quake"] = 1000000, ["Buddha-Buddha"] = 1200000, ["Love-Love"] = 1300000,
+    ["Spider-Spider"] = 1500000, ["Sound-Sound"] = 1700000, ["Phoenix-Phoenix"] = 1800000,
+    ["Portal-Portal"] = 1900000, ["Rumble-Rumble"] = 2100000, ["Pain-Pain"] = 2300000,
+    ["Gravity-Gravity"] = 2500000, ["Mammoth-Mammoth"] = 2700000, ["Dough-Dough"] = 2800000,
+    ["Shadow-Shadow"] = 2900000, ["Venom-Venom"] = 3000000, ["Control-Control"] = 3200000,
+    ["Gas-Gas"] = 3200000, ["Spirit-Spirit"] = 3400000, ["Dragon-Dragon"] = 3500000,
+    ["Leopard-Leopard"] = 5000000
+}
+
+-- =========================
+-- HÀM GỬI WEBHOOK CONFIG
 -- =========================
 local function sendBananaConfig()
-    if not getgenv().SettingFarm or not getgenv().SettingFarm["Webhook"] then return end
     local webhookCfg = getgenv().SettingFarm["Webhook"]
-    if not webhookCfg["Enabled"] then return end
+    if not webhookCfg or not webhookCfg["Enabled"] then return end
     local url = tostring(webhookCfg["WebhookUrl"] or "")
     if url == "" then return end
 
@@ -120,8 +135,12 @@ local function sendBananaConfig()
     local data = player:WaitForChild("Data")
 
     -- Stats
-    local statsText = string.format(
-        "**Username:** %s (ID: %s)\n**Level:** %s\n**Beli:** %s\n**Fragments:** %s\n**Race:** %s",
+    local statsText = string.format([[
+```Username: %s (ID: %s)
+Level: %s
+Beli: %s
+Fragments: %s
+Race: %s```]],
         player.Name,
         tostring(player.UserId),
         tostring(data.Level.Value),
@@ -130,7 +149,7 @@ local function sendBananaConfig()
         tostring(data.Race.Value)
     )
 
-    -- Items cần check
+    -- Items
     local wantedItems = {
         "Cursed Dual Katana",
         "Yama",
@@ -151,25 +170,11 @@ local function sendBananaConfig()
             table.insert(itemsList, "🔴 " .. item)
         end
     end
-    local itemsText = table.concat(itemsList, "\n")
+    local itemsText = "```" .. table.concat(itemsList, "\n") .. "```"
 
-    -- Fruits (Inventory)
-    local fruitPrices = {
-        ["Rocket-Rocket"] = 5000, ["Spin-Spin"] = 7500, ["Chop-Chop"] = 30000, ["Spring-Spring"] = 60000,
-        ["Bomb-Bomb"] = 80000, ["Smoke-Smoke"] = 100000, ["Spike-Spike"] = 180000, ["Flame-Flame"] = 250000,
-        ["Falcon-Falcon"] = 300000, ["Ice-Ice"] = 350000, ["Sand-Sand"] = 420000, ["Dark-Dark"] = 500000,
-        ["Diamond-Diamond"] = 600000, ["Light-Light"] = 650000, ["Rubber-Rubber"] = 750000,
-        ["Barrier-Barrier"] = 800000, ["Ghost-Ghost"] = 850000, ["Magma-Magma"] = 950000,
-        ["Quake-Quake"] = 1000000, ["Human-Human: Buddha"] = 1200000, ["Love-Love"] = 1300000,
-        ["Spider-Spider"] = 1500000, ["Sound-Sound"] = 1700000, ["Phoenix-Phoenix"] = 1800000,
-        ["Portal-Portal"] = 1900000, ["Rumble-Rumble"] = 2100000, ["Pain-Pain"] = 2300000,
-        ["Gravity-Gravity"] = 2500000, ["Dough-Dough"] = 2800000, ["Shadow-Shadow"] = 2900000,
-        ["Venom-Venom"] = 3000000, ["Control-Control"] = 3200000, ["Gas-Gas"] = 3200000,
-        ["Spirit-Spirit"] = 3400000, ["Dragon-Dragon"] = 3500000, ["Leopard-Leopard"] = 5000000
-    }
-
+    -- Fruits
     local fruitsList = {}
-    local inv = game:GetService("ReplicatedStorage"):WaitForChild("Remotes").CommF_
+    local inv = game:GetService("ReplicatedStorage").Remotes.CommF_
     local ok, res = pcall(function()
         return inv:InvokeServer("getInventoryFruits")
     end)
@@ -177,13 +182,13 @@ local function sendBananaConfig()
         for _, v in pairs(res) do
             local fruitName = v.Name
             local price = fruitPrices[fruitName] or "???"
-            table.insert(fruitsList, fruitName .. " (" .. price .. " Beli)")
+            table.insert(fruitsList, "🟢 " .. fruitName .. " (" .. price .. " Beli)")
         end
     end
     if #fruitsList == 0 then
         fruitsList = { "🔴 Không có fruit nào trong rương" }
     end
-    local fruitsText = table.concat(fruitsList, "\n")
+    local fruitsText = "```" .. table.concat(fruitsList, "\n") .. "```"
 
     -- Embed
     local embed = {
@@ -198,30 +203,17 @@ local function sendBananaConfig()
         timestamp = DateTime.now():ToIsoDate()
     }
 
-    local payload = {
-        username = "Banana Hub",
-        embeds = { embed }
-    }
-
-    local body = HttpService:JSONEncode(payload)
-    sendRawRequest(url, body)
+    local payload = { username = "Banana Hub", embeds = { embed } }
+    sendRawRequest(url, HttpService:JSONEncode(payload))
 end
 
 -- =========================
--- GỬI LOG KHI JOIN
+-- GỬI LÚC VÀO GAME + AUTO UPDATE
 -- =========================
 task.spawn(function()
     repeat task.wait() until game:IsLoaded()
     sendBananaConfig()
-end)
-
--- =========================
--- AUTO UPDATE MỖI 1 PHÚT
--- =========================
-task.spawn(function()
-    repeat task.wait() until game:IsLoaded()
-    while true do
+    while task.wait(60) do
         sendBananaConfig()
-        task.wait(60)
     end
 end)
