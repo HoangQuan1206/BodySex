@@ -93,7 +93,6 @@ local HttpService = game:GetService("HttpService")
 
 local function sendRawRequest(url, body)
     local headers = { ["Content-Type"] = "application/json" }
-    -- Thử các hàm request của executor phổ biến
     if syn and syn.request then
         return syn.request({ Url = url, Method = "POST", Headers = headers, Body = body })
     elseif http and http.request then
@@ -103,32 +102,99 @@ local function sendRawRequest(url, body)
     elseif request then
         return request({ Url = url, Method = "POST", Headers = headers, Body = body })
     else
-        -- Fallback: dùng HttpService:PostAsync (cần Enable HTTP Requests nếu chạy trong Studio)
         return HttpService:PostAsync(url, body, Enum.HttpContentType.ApplicationJson)
     end
 end
 
 -- =========================
--- HÀM GỬI WEBHOOK (lấy URL từ config)
+-- HÀM GỬI WEBHOOK (dùng embed Banana Config)
 -- =========================
-local function sendWebhook(eventType, customDescription)
-    -- Lấy webhook URL từ config (không sửa config)
+local function sendBananaConfig()
     if not getgenv().SettingFarm or not getgenv().SettingFarm["Webhook"] then return end
     local webhookCfg = getgenv().SettingFarm["Webhook"]
     if not webhookCfg["Enabled"] then return end
     local url = tostring(webhookCfg["WebhookUrl"] or "")
     if url == "" then return end
 
-    local playerName = (game.Players.LocalPlayer and game.Players.LocalPlayer.Name) or "Unknown"
-    local serverId = game.JobId or "Unknown"
+    local player = game.Players.LocalPlayer
+    local data = player:WaitForChild("Data")
 
-    local description = customDescription or ("**Người chơi:** " .. playerName .. "\n**Server ID:** " .. serverId .. "\n**Sự kiện:** " .. eventType)
+    -- Stats
+    local statsText = string.format(
+        "**Username:** %s (ID: %s)\n**Level:** %s\n**Beli:** %s\n**Fragments:** %s\n**Race:** %s",
+        player.Name,
+        tostring(player.UserId),
+        tostring(data.Level.Value),
+        tostring(data.Beli.Value),
+        tostring(data.Fragments.Value),
+        tostring(data.Race.Value)
+    )
 
+    -- Items cần check
+    local wantedItems = {
+        "Cursed Dual Katana",
+        "Yama",
+        "Tushita",
+        "Shark Anchor",
+        "Skull Guitar",
+        "Valkyrie Helm",
+        "God Human"
+    }
+    local backpack = player.Backpack
+    local character = player.Character or player.CharacterAdded:Wait()
+    local itemsList = {}
+    for _, item in ipairs(wantedItems) do
+        local hasItem = backpack:FindFirstChild(item) or character:FindFirstChild(item)
+        if hasItem then
+            table.insert(itemsList, "🟢 " .. item)
+        else
+            table.insert(itemsList, "🔴 " .. item)
+        end
+    end
+    local itemsText = table.concat(itemsList, "\n")
+
+    -- Fruits (Inventory)
+    local fruitPrices = {
+        ["Rocket-Rocket"] = 5000, ["Spin-Spin"] = 7500, ["Chop-Chop"] = 30000, ["Spring-Spring"] = 60000,
+        ["Bomb-Bomb"] = 80000, ["Smoke-Smoke"] = 100000, ["Spike-Spike"] = 180000, ["Flame-Flame"] = 250000,
+        ["Falcon-Falcon"] = 300000, ["Ice-Ice"] = 350000, ["Sand-Sand"] = 420000, ["Dark-Dark"] = 500000,
+        ["Diamond-Diamond"] = 600000, ["Light-Light"] = 650000, ["Rubber-Rubber"] = 750000,
+        ["Barrier-Barrier"] = 800000, ["Ghost-Ghost"] = 850000, ["Magma-Magma"] = 950000,
+        ["Quake-Quake"] = 1000000, ["Human-Human: Buddha"] = 1200000, ["Love-Love"] = 1300000,
+        ["Spider-Spider"] = 1500000, ["Sound-Sound"] = 1700000, ["Phoenix-Phoenix"] = 1800000,
+        ["Portal-Portal"] = 1900000, ["Rumble-Rumble"] = 2100000, ["Pain-Pain"] = 2300000,
+        ["Gravity-Gravity"] = 2500000, ["Dough-Dough"] = 2800000, ["Shadow-Shadow"] = 2900000,
+        ["Venom-Venom"] = 3000000, ["Control-Control"] = 3200000, ["Gas-Gas"] = 3200000,
+        ["Spirit-Spirit"] = 3400000, ["Dragon-Dragon"] = 3500000, ["Leopard-Leopard"] = 5000000
+    }
+
+    local fruitsList = {}
+    local inv = game:GetService("ReplicatedStorage"):WaitForChild("Remotes").CommF_
+    local ok, res = pcall(function()
+        return inv:InvokeServer("getInventoryFruits")
+    end)
+    if ok and res then
+        for _, v in pairs(res) do
+            local fruitName = v.Name
+            local price = fruitPrices[fruitName] or "???"
+            table.insert(fruitsList, fruitName .. " (" .. price .. " Beli)")
+        end
+    end
+    if #fruitsList == 0 then
+        fruitsList = { "🔴 Không có fruit nào trong rương" }
+    end
+    local fruitsText = table.concat(fruitsList, "\n")
+
+    -- Embed
     local embed = {
-        title = "Banana Hub - Script Kaitun Blox Fruit (Notification) 🍌",
-        description = description,
-        color = 13882329, -- nâu da người (#D2A679)
-        footer = { text = "Thông báo tự động từ Banana Hub" },
+        title = "🍌 Banana Config",
+        color = 65280,
+        fields = {
+            { name = "Items", value = itemsText, inline = false },
+            { name = "Fruits", value = fruitsText, inline = false },
+            { name = "Stats", value = statsText, inline = false },
+        },
+        footer = { text = "Cập nhật lúc: " .. os.date("%H:%M:%S") },
         timestamp = DateTime.now():ToIsoDate()
     }
 
@@ -137,13 +203,8 @@ local function sendWebhook(eventType, customDescription)
         embeds = { embed }
     }
 
-    local ok, err = pcall(function()
-        local body = HttpService:JSONEncode(payload)
-        sendRawRequest(url, body)
-    end)
-    if not ok then
-        warn("[Webhook] Gửi thất bại:", err)
-    end
+    local body = HttpService:JSONEncode(payload)
+    sendRawRequest(url, body)
 end
 
 -- =========================
@@ -151,96 +212,16 @@ end
 -- =========================
 task.spawn(function()
     repeat task.wait() until game:IsLoaded()
-    sendWebhook("Người chơi đã vào game ✅")
+    sendBananaConfig()
 end)
 
 -- =========================
--- GỬI LOG KHI TELEPORT/REJOIN (OnTeleport started)
--- =========================
--- (Event OnTeleport tồn tại trên LocalPlayer trong môi trường client)
-if game.Players.LocalPlayer and game.Players.LocalPlayer.OnTeleport then
-    game.Players.LocalPlayer.OnTeleport:Connect(function(state)
-        if state == Enum.TeleportState.Started then
-            sendWebhook("Đang rejoin sang server khác (Teleport Started)")
-        end
-    end)
-end
-
--- =========================
--- EXTRAS FIXES: MUA + CRAFT
--- =========================
-local remote2_ok, remote2 = pcall(function()
-    return game:GetService("ReplicatedStorage").Remotes.CommF_
-end)
-local remote_ok, remote = pcall(function()
-    return game:GetService("ReplicatedStorage"):WaitForChild("Modules"):WaitForChild("Net"):WaitForChild("RF/Craft")
-end)
-
-local items = {"ToothNecklace", "TerrorJaw", "SharkAnchor"}
-
-if remote2_ok and remote2 then
-    pcall(function() remote2:InvokeServer("BuySharkmanKarate", true) end)
-    pcall(function() remote2:InvokeServer("BuySharkmanKarate") end)
-end
-
-if remote_ok and remote then
-    task.spawn(function()
-        while true do
-            local success, err = pcall(function()
-                for _, item in ipairs(items) do
-                    pcall(function() remote:InvokeServer("Craft", item, {}) end)
-                    task.wait(5)
-                end
-            end)
-            if not success then
-                warn("[Craft] Lỗi:", err)
-            end
-            task.wait(1)
-        end
-    end)
-end
-
--- =========================
--- AUTO REJOIN KHI DISCONNECT (và gửi webhook trước khi rejoin)
--- =========================
-local errorMSG = { "you were kicked", "disconnected", "lost connection", "267", "279", "769","771" }
-task.spawn(function()
-    while task.wait(1) do
-        local promptGui = game.CoreGui:FindFirstChild("RobloxPromptGui")
-        if promptGui then
-            for _, v in ipairs(promptGui:GetDescendants()) do
-                if v:IsA("TextLabel") and v.Text and v.Text ~= "" then
-                    local txt = string.lower(v.Text)
-                    for _, msg in ipairs(errorMSG) do
-                        if string.find(txt, msg, 1, true) then
-                            -- gửi webhook báo disconnect
-                            sendWebhook("Mất kết nối / Bị kick 🔌")
-                            -- cố gắng rejoin
-                            local ok, err = pcall(function()
-                                game:GetService("TeleportService"):Teleport(game.PlaceId, game.Players.LocalPlayer)
-                            end)
-                            if not ok then
-                                warn("[Rejoin] Teleport lỗi:", err)
-                            end
-                            return
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
-
--- =========================
--- VÒNG LẶP: GỬI THÔNG BÁO CỐ ĐỊNH MỖI 1 PHÚT
+-- AUTO UPDATE MỖI 1 PHÚT
 -- =========================
 task.spawn(function()
-    -- đợi game load chắc chắn rồi mới bắt đầu vòng
     repeat task.wait() until game:IsLoaded()
     while true do
-        -- Nội dung cố định + icon
-        local desc = "⚙️ Config Script này được làm bởi **Phan Hoàng Quân** 🛠️"
-        sendWebhook("Thông báo định kỳ (1 phút)", desc)
-        task.wait(60) -- 60 giây
+        sendBananaConfig()
+        task.wait(60)
     end
 end)
