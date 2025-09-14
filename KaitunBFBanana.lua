@@ -76,7 +76,7 @@ getgenv().SettingFarm = {
     },
     ["Lock Fruit"] = {},
     ["Webhook"] = {
-        ["Enabled"] = true,
+        ["Enabled"] = false,
         ["WebhookUrl"] = "https://discord.com/api/webhooks/1411194628006219776/16nlkh3LpQruj5D25URDUIsABPZnVTNa44YoycfwM-wIMNParpTuf7lHzb2r4wmhX8JH",
     }
 }
@@ -108,18 +108,46 @@ end
 -- GIÁ FRUIT
 -- =========================
 local fruitPrices = {
-    ["Rocket-Rocket"] = 5000, ["Spin-Spin"] = 7500, ["Chop-Chop"] = 30000, ["Spring-Spring"] = 60000,
-    ["Bomb-Bomb"] = 80000, ["Smoke-Smoke"] = 100000, ["Spike-Spike"] = 180000, ["Flame-Flame"] = 250000,
-    ["Falcon-Falcon"] = 300000, ["Ice-Ice"] = 350000, ["Sand-Sand"] = 420000, ["Dark-Dark"] = 500000,
-    ["Diamond-Diamond"] = 600000, ["Light-Light"] = 650000, ["Rubber-Rubber"] = 750000,
-    ["Barrier-Barrier"] = 800000, ["Ghost-Ghost"] = 850000, ["Magma-Magma"] = 950000,
-    ["Quake-Quake"] = 1000000, ["Buddha-Buddha"] = 1200000, ["Love-Love"] = 1300000,
-    ["Spider-Spider"] = 1500000, ["Sound-Sound"] = 1700000, ["Phoenix-Phoenix"] = 1800000,
-    ["Portal-Portal"] = 1900000, ["Rumble-Rumble"] = 2100000, ["Pain-Pain"] = 2300000,
-    ["Gravity-Gravity"] = 2500000, ["Mammoth-Mammoth"] = 2700000, ["Dough-Dough"] = 2800000,
-    ["Shadow-Shadow"] = 2900000, ["Venom-Venom"] = 3000000, ["Control-Control"] = 3200000,
-    ["Gas-Gas"] = 3200000, ["Spirit-Spirit"] = 3400000, ["Dragon-Dragon"] = 3500000,
-    ["Leopard-Leopard"] = 5000000
+    ["Rocket-Rocket"] = 5000,
+    ["Spin-Spin"] = 7500,
+    ["Chop-Chop"] = 30000,
+    ["Spring-Spring"] = 60000,
+    ["Bomb-Bomb"] = 80000,
+    ["Smoke-Smoke"] = 100000,
+    ["Spike-Spike"] = 180000,
+    ["Flame-Flame"] = 250000,
+    ["Falcon-Falcon"] = 300000,
+    ["Ice-Ice"] = 350000,
+    ["Sand-Sand"] = 420000,
+    ["Dark-Dark"] = 500000,
+    ["Eagle-Eagle"] = 550000,
+    ["Diamond-Diamond"] = 600000,
+    ["Light-Light"] = 650000,
+    ["Rubber-Rubber"] = 750000,
+    ["Barrier-Barrier"] = 800000,
+    ["Ghost-Ghost"] = 940000,
+    ["Magma-Magma"] = 960000,
+    ["Quake-Quake"] = 1000000,
+    ["Buddha-Buddha"] = 1200000,
+    ["Love-Love"] = 1300000,
+    ["Spider-Spider"] = 1500000,
+    ["Sound-Sound"] = 1700000,
+    ["Phoenix-Phoenix"] = 1800000,
+    ["Portal-Portal"] = 1900000,
+    ["Rumble-Rumble"] = 2100000,
+    ["Pain-Pain"] = 2300000,
+    ["Gravity-Gravity"] = 2500000,
+    ["Dough-Dough"] = 2800000,
+    ["Shadow-Shadow"] = 2900000,
+    ["Venom-Venom"] = 3000000,
+    ["Control-Control"] = 3200000,
+    ["Gas-Gas"] = 3200000,
+    ["Spirit-Spirit"] = 3400000,
+    ["Dragon-Dragon"] = 3500000,
+    ["Mammoth-Mammoth"] = 375000000,
+    ["Leopard-Leopard"] = 525000000,
+    ["East Dragon-East Dragon"] = 1350000000,
+    ["West Dragon-West Dragon"] = 1350000000
 }
 
 -- =========================
