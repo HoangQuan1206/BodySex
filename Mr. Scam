@@ -1,0 +1,142 @@
+-- Hoàn chỉnh config + thêm FPS display
+local Config = {
+    ["Team"] = "Pirates", -- Marines
+    ["FPS Boost"] = true,
+    ["Black Screen"] = false,
+    ["Lock Fragment"] = 100000,
+    ["Awakening Fruit"] = false,
+    ["Hop if Other Players are Nearby"] = false,
+    ["Optional"] = {
+        ["Skip Level"] = true,
+    },
+    ["Auto Evo Race"] = false,
+    ["Item"] = {
+        ["Get Pole"] = false,
+        ["Get Saber"] = true,
+        ["Skull Guitar"] = true,
+        ["Cursed Dual Katana"] = true,
+        ["Get Mirror Fractal when have God's Chalice"] = false,
+        ["Collect Berries"] = false,
+    },
+    ["Mastery"] = {
+        ["Melee"] = false, -- 600 mastery
+        ["Sword"] = {
+            ["Enable"] = false,
+            ["Method"] = "Half" -- Half/Full
+        },
+        ["Weapon"] = {}
+    },
+    ["Fruit"] = {
+        -- Bạn có thể để là một chuỗi "Dough-Dough" hoặc là một bảng danh sách dưới đây.
+        -- Nếu là bảng thì script sẽ tự lấy phần tử đầu làm mặc định cho loader.
+        ["Select Fruit"] = {
+            "Buddha-Buddha",
+            "Quake-Quake",
+            "String-String",
+            "Dark-Dark",
+            "Magma-Magma",
+            "Rumble-Rumble",
+            "Paw-Paw",
+            "Blizzard-Blizzard",
+            "Gravity-Gravity",
+            "Dough-Dough",
+            "Shadow-Shadow",
+            "Venom-Venom",
+            "Control-Control",
+            "Spirit-Spirit",
+            "Dragon-Dragon",
+            "Leopard-Leopard",
+            "Kitsune-Kitsune"
+        },
+        ["Snipe Fruit Selected"] = false
+    },
+    ["Hop"] = {
+        ["Hop Find Mirror"] = false,
+        ["Hop Find Valkyrie Helm"] = false,
+        ["Hop Find Fruit 1m For Auto Third Sea"] = false,
+        ["Hop For Get Tushita"] = false,
+        ["Hop Find Full Moon For Get Skull Guitar"] = false,
+        ["Hop Find Cake Queen [CDK]"] = false
+    },
+
+    -- ------ TÙY CHỌN FPS DISPLAY ------
+    ["ShowFPS"] = true, -- bật / tắt hiển thị FPS
+    ["FPSSettings"] = {
+        ["OffsetX"] = -10, -- offset so với cạnh phải (px)
+        ["OffsetY"] = 10,  -- offset so với cạnh trên (px)
+        ["TextSize"] = 14,
+        ["BackgroundTransparency"] = 0.7,
+        ["Width"] = 90,
+        ["Height"] = 20
+    }
+}
+
+-- gán vào môi trường chung
+getgenv().Config = Config
+
+-- Nếu người dùng để Select Fruit là 1 bảng, lưu danh sách và đặt mặc định là phần tử đầu
+do
+    local fruitField = getgenv().Config.Fruit and getgenv().Config.Fruit["Select Fruit"]
+    if type(fruitField) == "table" and #fruitField > 0 then
+        -- lưu danh sách tham khảo
+        getgenv().Config.Fruit["__SelectFruitList"] = fruitField
+        -- đặt giá trị mặc định (phần tử đầu) cho loader gốc (nhiều loader chỉ chấp nhận chuỗi)
+        getgenv().Config.Fruit["Select Fruit"] = fruitField[1]
+    end
+end
+
+-- Tạo FPS display (nếu bật)
+if getgenv().Config.ShowFPS then
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+    local localPlayer = Players.LocalPlayer
+
+    -- chờ LocalPlayer (chỉ chạy client)
+    if localPlayer then
+        local playerGui = localPlayer:WaitForChild("PlayerGui")
+        -- xóa GUI cũ nếu có
+        local existing = playerGui:FindFirstChild("HoangQuan_FPS_Display")
+        if existing then existing:Destroy() end
+
+        local screenGui = Instance.new("ScreenGui")
+        screenGui.Name = "HoangQuan_FPS_Display"
+        screenGui.ResetOnSpawn = false
+        screenGui.Parent = playerGui
+
+        local label = Instance.new("TextLabel")
+        label.Name = "FPSLabel"
+        label.Parent = screenGui
+        label.AnchorPoint = Vector2.new(1, 0) -- neo theo góc phải trên
+        -- Position: (scaleX, offsetX, scaleY, offsetY)
+        label.Position = UDim2.new(1, getgenv().Config.FPSSettings.OffsetX or -10, 0, getgenv().Config.FPSSettings.OffsetY or 10)
+        label.Size = UDim2.new(0, getgenv().Config.FPSSettings.Width or 90, 0, getgenv().Config.FPSSettings.Height or 20)
+        label.BackgroundTransparency = getgenv().Config.FPSSettings.BackgroundTransparency or 0.7
+        label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        label.BorderSizePixel = 0
+        label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        label.TextScaled = false
+        label.TextSize = getgenv().Config.FPSSettings.TextSize or 14
+        label.Font = Enum.Font.SourceSansBold
+        label.Text = "FPS: ..."
+        label.TextXAlignment = Enum.TextXAlignment.Right
+
+        -- cập nhật FPS theo trung bình nửa giây để không nhảy quá nhiều
+        local accum = 0
+        local frames = 0
+        RunService.RenderStepped:Connect(function(dt)
+            accum = accum + dt
+            frames = frames + 1
+            if accum >= 0.5 then
+                local fps = math.floor(frames / accum + 0.5)
+                label.Text = "FPS: " .. tostring(fps)
+                accum = 0
+                frames = 0
+            end
+        end)
+    end
+end
+
+-- Cuối cùng, load script gốc (loader luarmor)
+pcall(function()
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/80dec5987455b047919cd26de0503b76.lua"))()
+end)
