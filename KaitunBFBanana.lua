@@ -1,5 +1,4 @@
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-
 getgenv().Key = "fce29705ab1438631ae8d43c"
 getgenv().SettingFarm = {
     ["Hide UI"] = true,
@@ -103,3 +102,4 @@ getgenv().SettingFarm = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/webhook"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
