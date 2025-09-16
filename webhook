@@ -1,0 +1,115 @@
+--// Services
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Enemies = workspace:WaitForChild("Enemies")
+local Lighting = game:GetService("Lighting")
+local LocalPlayer = Players.LocalPlayer
+
+--// Place IDs
+local SEA1_PLACE_ID = 2753915549
+local SEA2_PLACE_ID = 4442272183
+local SEA3_PLACE_ID = 7449423635
+
+--// Info
+local jobId = tostring(game.JobId)
+local joinScript = string.format(
+    'game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, "%s", game.Players.LocalPlayer)',
+    jobId
+)
+
+--// Webhook Configuration
+local WebhookURL = "https://discord.com/api/webhooks/1411194628006219776/16nlkh3LpQruj5D25URDUIsABPZnVTNa44YoycfwM-wIMNParpTuf7lHzb2r4wmhX8JH"
+
+--// Function: Send Webhook
+local function sendWebhook(eventList)
+    local currentSea = "Unknown Sea"
+    if game.PlaceId == SEA1_PLACE_ID then
+        currentSea = "First Sea"
+    elseif game.PlaceId == SEA2_PLACE_ID then
+        currentSea = "Second Sea"
+    elseif game.PlaceId == SEA3_PLACE_ID then
+        currentSea = "Third Sea"
+    end
+
+    local playerCount = #Players:GetPlayers()
+    local fps = workspace:GetRealPhysicsFPS()
+    local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+
+    local eventsText = #eventList > 0 and table.concat(eventList, "\n") or "Không có sự kiện/boss nào."
+
+    local data = {
+        username = "Blox Fruits Notify",
+        embeds = {{
+            title = "🌊 Server Update | " .. LocalPlayer.Name,
+            color = tonumber(0x00FFAA),
+            fields = {
+                { name = "Sea", value = currentSea, inline = true },
+                { name = "Players", value = tostring(playerCount), inline = true },
+                { name = "FPS", value = tostring(fps), inline = true },
+                { name = "Ping", value = ping, inline = true },
+                { name = "Job ID", value = jobId, inline = false },
+                { name = "Join Script", value = "```lua\n".. joinScript .."\n```", inline = false },
+                { name = "Events/Boss", value = "```\n".. eventsText .."\n```", inline = false },
+            },
+            footer = { text = "Updated every 10s • " .. os.date("%d/%m/%Y %H:%M:%S") }
+        }}
+    }
+
+    local payload = HttpService:JSONEncode(data)
+    local request = http_request or request or HttpPost or (syn and syn.request)
+
+    if request then
+        pcall(function()
+            request({
+                Url = WebhookURL,
+                Method = "POST",
+                Headers = { ["Content-Type"] = "application/json" },
+                Body = payload
+            })
+        end)
+    end
+end
+
+--// Function: Detect Events/Boss
+local function detectEvents()
+    local found = {}
+
+    -- Bosses
+    local bosses = { "Darkbeard", "Cursed Captain", "Rip Indra", "Dough King", "Cake Prince", "Tyrant of the Skies", "Soul Reaper" }
+    for _, boss in ipairs(bosses) do
+        if ReplicatedStorage:FindFirstChild(boss) or Enemies:FindFirstChild(boss) then
+            table.insert(found, "⚔️ Boss: " .. boss)
+        end
+    end
+
+    -- Islands
+    local locs = workspace:FindFirstChild("_WorldOrigin") and workspace._WorldOrigin:FindFirstChild("Locations")
+    if locs then
+        for _, island in ipairs({ "Mirage Island", "Kitsune Island", "Prehistoric Island" }) do
+            if locs:FindFirstChild(island) then
+                table.insert(found, "🏝️ Island: " .. island)
+            end
+        end
+    end
+
+    -- Moon phases
+    if Lighting:FindFirstChild("Sky") then
+        if Lighting.Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149431" then
+            table.insert(found, "🌕 Full Moon")
+        elseif Lighting.Sky.MoonTextureId == "http://www.roblox.com/asset/?id=9709149052" then
+            table.insert(found, "🌖 Near Full Moon")
+        end
+    end
+
+    return found
+end
+
+--// Loop Update (10s)
+task.spawn(function()
+    while true do
+        local events = detectEvents()
+        sendWebhook(events)
+        task.wait(10) -- 10 giây update 1 lần
+    end
+end)
