@@ -1,14 +1,21 @@
--- Auto Accept Friend Requests
+-- Auto Accept Friend Requests (có check giới hạn bạn bè)
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local MAX_FRIENDS = 200
 
 -- Hàm để chấp nhận lời mời kết bạn
 local function acceptFriendRequest(player)
     if not player or player == LocalPlayer then return end
+    -- Kiểm tra số bạn bè
+    if #LocalPlayer:GetFriendsOnline() >= MAX_FRIENDS then
+        warn("[FriendSystem] Đã đạt tối đa " .. MAX_FRIENDS .. " bạn, không thể kết thêm.")
+        return
+    end
     -- Gửi request để kết bạn
     pcall(function()
         LocalPlayer:RequestFriendship(player)
         player:RequestFriendship(LocalPlayer)
+        print("[FriendSystem] Đã gửi kết bạn với:", player.Name)
     end)
 end
 
@@ -21,6 +28,7 @@ end)
 for _, player in pairs(Players:GetPlayers()) do
     acceptFriendRequest(player)
 end
+
 
 -- ===============================
 -- HUD Góc Phải Nâng Cấp (VN Clock + Info + Optimize)
