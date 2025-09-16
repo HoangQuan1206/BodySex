@@ -1,0 +1,24 @@
+-- Auto Accept Friend Requests
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Hàm để chấp nhận lời mời kết bạn
+local function acceptFriendRequest(player)
+    if not player or player == LocalPlayer then return end
+    -- Gửi request để kết bạn
+    pcall(function()
+        LocalPlayer:RequestFriendship(player)
+        player:RequestFriendship(LocalPlayer)
+    end)
+end
+
+-- Khi có người mới join, auto kết bạn
+Players.PlayerAdded:Connect(function(player)
+    acceptFriendRequest(player)
+end)
+
+-- Với người đã ở trong game, kết bạn luôn
+for _, player in pairs(Players:GetPlayers()) do
+    acceptFriendRequest(player)
+end
+
