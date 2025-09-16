@@ -60,7 +60,10 @@ _G.Races_Settings = {
 
 _G.Fruits_Settings = {
     ['Main_Fruits'] = {'Dough-Dough'},
-    ['Select_Fruits'] = {"Flame-Flame", "Ice-Ice", "Quake-Quake", "Light-Light", "Dark-Dark", "Spider-Spider", "Rumble-Rumble", "Magma-Magma", "Buddha-Buddha"}
+    ['Select_Fruits'] = {"Rumble-Rumble", "Pain-Pain", "Gravity-Gravity", "Dough-Dough", 
+        "Shadow-Shadow", "Venom-Venom", "Control-Control", "Gas-Gas", 
+        "Spirit-Spirit", "Dragon-Dragon", "Mammoth-Mammoth", "Leopard-Leopard", 
+        "East Dragon-East Dragon", "West Dragon-West Dragon"}
 }
 
 _G.Settings_Melee = {
@@ -75,15 +78,15 @@ _G.Settings_Melee = {
 _G.SwordSettings = {
     ['Saber'] = true,
     ["Pole"] = false,
-    ['MidnightBlade'] = false,
+    ['MidnightBlade'] = true,
     ['Shisui'] = true,
     ['Saddi'] = true,
     ['Wando'] = true,
     ['Yama'] = true,
-    ['Rengoku'] = false,
-    ['Canvander'] = false,
-    ['BuddySword'] = false,
-    ['TwinHooks'] = false,
+    ['Rengoku'] = true,
+    ['Canvander'] = true,
+    ['BuddySword'] = true,
+    ['TwinHooks'] = true,
     ['HallowScryte'] = true,
     ['TrueTripleKatana'] = true,
     ['CursedDualKatana'] = true
@@ -91,7 +94,7 @@ _G.SwordSettings = {
 
 _G.GunSettings = {
     ['Kabucha'] = true,
-    ['SerpentBow'] = false,
+    ['SerpentBow'] = true,
     ['SoulGuitar'] = true
 }
 
@@ -111,12 +114,8 @@ _G.FarmMastery_Settings = {
 _G.Hop_Settings = {
     ["Find Tushita"] = true
 }
-
--- Webhook Settings
-local WebhookUrl = "https://discord.com/api/webhooks/1411194628006219776/16nlkh3LpQruj5D25URDUIsABPZnVTNa44YoycfwM-wIMNParpTuf7lHzb2r4wmhX8JH"
-
 -- Maru Hub Script Loader
-getgenv().Key = "MARU-MD69-7DZER-ALWX-0ZPRY-K4ZU"
-getgenv().id = "949271381030350858"
-loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/MaruBitkub/main/Mobile.lua"))()
+(getgenv()).key = "MARU79NRSUSKX74PPXMOSB64NG";
+(getgenv()).id = "949271381030350858";
+loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/MaruComkak/main/PCBit.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
