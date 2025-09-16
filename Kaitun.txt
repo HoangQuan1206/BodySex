@@ -36,7 +36,10 @@ getgenv().Config = {
         ["Hop if any player is nearby"] = true
     },
     ["Fruit"] = {
-        ["Select Fruit"] = "", -- Dough-Dough
+        ["Select Fruit"] = "Rumble-Rumble", "Pain-Pain", "Gravity-Gravity", "Dough-Dough", 
+        "Shadow-Shadow", "Venom-Venom", "Control-Control", "Gas-Gas", 
+        "Spirit-Spirit", "Dragon-Dragon", "Mammoth-Mammoth", "Leopard-Leopard", 
+        "East Dragon-East Dragon", "West Dragon-West Dragon", -- Dough-Dough
         ["Snipe Fruit"] = false
     }
 }
