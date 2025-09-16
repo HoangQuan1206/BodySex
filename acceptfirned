@@ -79,7 +79,7 @@ end
 local clockLabel = createLabel(5, "⏰ VN: --:--:--", 20, Color3.fromRGB(255, 255, 255))
 local dateLabel = createLabel(30, "📅 --/--/----", 18, Color3.fromRGB(150, 200, 255))
 local creditLabel = createLabel(50, "🚀 Vận hành bởi Hoàng Quân (Mario)", 16, Color3.fromRGB(255, 215, 0))
-local serverLabel = createLabel(75, "🎮 Sea: ??? | Players: --", 16, Color3.fromRGB(150, 255, 150))
+local serverLabel = createLabel(75, "🎮 SeaSea: ??? | Players: --", 16, Color3.fromRGB(150, 255, 150))
 local perfLabel = createLabel(95, "⚡ FPS: -- | 📡 Ping: --", 16, Color3.fromRGB(255, 170, 0))
 
 -- Hàm lấy Sea theo PlaceId
