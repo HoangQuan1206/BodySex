@@ -21,6 +21,7 @@ end)
 for _, player in pairs(Players:GetPlayers()) do
     acceptFriendRequest(player)
 end
+
 -- ===============================
 -- HUD Góc Phải Nâng Cấp (VN Clock + Info + Optimize)
 -- ===============================
@@ -38,7 +39,7 @@ screenGui.ResetOnSpawn = false
 
 -- Khung nền
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 300, 0, 135)
+frame.Size = UDim2.new(0, 300, 0, 115) -- giảm chiều cao vì bỏ uptime
 frame.Position = UDim2.new(1, -310, 0, 10)
 frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 frame.BackgroundTransparency = 0.4
@@ -69,10 +70,9 @@ end
 -- Các label
 local clockLabel = createLabel(5, "⏰ VN: --:--:--", 20, Color3.fromRGB(255, 255, 255))
 local dateLabel = createLabel(30, "📅 --/--/----", 18, Color3.fromRGB(150, 200, 255))
-local creditLabel = createLabel(50, "👤 Quan", 18, Color3.fromRGB(255, 215, 0))
-local serverLabel = createLabel(70, "🎮 Sea: ??? | Players: --", 16, Color3.fromRGB(150, 255, 150))
-local perfLabel = createLabel(90, "⚡ FPS: -- | 📡 Ping: --", 16, Color3.fromRGB(255, 170, 0))
-local uptimeLabel = createLabel(110, "⏳ Uptime: 0m", 16, Color3.fromRGB(200, 200, 200))
+local creditLabel = createLabel(50, "🚀 Vận hành bởi Hoàng Quân (Mario)", 16, Color3.fromRGB(255, 215, 0))
+local serverLabel = createLabel(75, "🎮 Sea: ??? | Players: --", 16, Color3.fromRGB(150, 255, 150))
+local perfLabel = createLabel(95, "⚡ FPS: -- | 📡 Ping: --", 16, Color3.fromRGB(255, 170, 0))
 
 -- Hàm lấy Sea theo PlaceId
 local function getSea()
@@ -88,9 +88,6 @@ local function getSea()
     end
 end
 
--- Thời gian online
-local startTime = tick()
-
 -- Update liên tục
 task.spawn(function()
     while task.wait(1) do
@@ -102,12 +99,6 @@ task.spawn(function()
         clockLabel.Text = "⏰ VN: " .. h .. ":" .. m .. ":" .. s
         dateLabel.Text = "📅 " .. string.format("%02d/%02d/%04d", now.day, now.month, now.year)
         serverLabel.Text = "🎮 " .. getSea() .. " | Players: " .. tostring(#Players:GetPlayers())
-
-        local elapsed = tick() - startTime
-        local minutes = math.floor(elapsed / 60)
-        local hours = math.floor(minutes / 60)
-        minutes = minutes % 60
-        uptimeLabel.Text = string.format("⏳ Uptime: %dh %dm", hours, minutes)
     end
 end)
 
@@ -129,5 +120,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
         frame.Visible = not frame.Visible
     end
 end)
+
 
 
