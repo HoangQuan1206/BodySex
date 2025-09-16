@@ -21,4 +21,113 @@ end)
 for _, player in pairs(Players:GetPlayers()) do
     acceptFriendRequest(player)
 end
+-- ===============================
+-- HUD Góc Phải Nâng Cấp (VN Clock + Info + Optimize)
+-- ===============================
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+-- Tạo ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "VN_Info_HUD"
+screenGui.Parent = PlayerGui
+screenGui.ResetOnSpawn = false
+
+-- Khung nền
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 135)
+frame.Position = UDim2.new(1, -310, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BackgroundTransparency = 0.4
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+-- Bo góc
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = frame
+
+-- Hàm tạo label
+local function createLabel(yPos, text, size, color)
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, -10, 0, 20)
+    label.Position = UDim2.new(0, 5, 0, yPos)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = color
+    label.TextStrokeTransparency = 0.5
+    label.Font = Enum.Font.SourceSansBold
+    label.TextSize = size
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.Text = text
+    label.Parent = frame
+    return label
+end
+
+-- Các label
+local clockLabel = createLabel(5, "⏰ VN: --:--:--", 20, Color3.fromRGB(255, 255, 255))
+local dateLabel = createLabel(30, "📅 --/--/----", 18, Color3.fromRGB(150, 200, 255))
+local creditLabel = createLabel(50, "👤 Quan", 18, Color3.fromRGB(255, 215, 0))
+local serverLabel = createLabel(70, "🎮 Sea: ??? | Players: --", 16, Color3.fromRGB(150, 255, 150))
+local perfLabel = createLabel(90, "⚡ FPS: -- | 📡 Ping: --", 16, Color3.fromRGB(255, 170, 0))
+local uptimeLabel = createLabel(110, "⏳ Uptime: 0m", 16, Color3.fromRGB(200, 200, 200))
+
+-- Hàm lấy Sea theo PlaceId
+local function getSea()
+    local placeId = game.PlaceId
+    if placeId == 2753915549 then
+        return "First"
+    elseif placeId == 4442272183 then
+        return "Second"
+    elseif placeId == 7449423635 then
+        return "Third"
+    else
+        return "Unknown"
+    end
+end
+
+-- Thời gian online
+local startTime = tick()
+
+-- Update liên tục
+task.spawn(function()
+    while task.wait(1) do
+        local now = os.date("!*t")
+        local vnHour = (now.hour + 7) % 24
+        local h = string.format("%02d", vnHour)
+        local m = string.format("%02d", now.min)
+        local s = string.format("%02d", now.sec)
+        clockLabel.Text = "⏰ VN: " .. h .. ":" .. m .. ":" .. s
+        dateLabel.Text = "📅 " .. string.format("%02d/%02d/%04d", now.day, now.month, now.year)
+        serverLabel.Text = "🎮 " .. getSea() .. " | Players: " .. tostring(#Players:GetPlayers())
+
+        local elapsed = tick() - startTime
+        local minutes = math.floor(elapsed / 60)
+        local hours = math.floor(minutes / 60)
+        minutes = minutes % 60
+        uptimeLabel.Text = string.format("⏳ Uptime: %dh %dm", hours, minutes)
+    end
+end)
+
+-- Update FPS & Ping bằng RunService
+local fps, lastUpdate = 0, tick()
+RunService.RenderStepped:Connect(function()
+    fps = fps + 1
+    if tick() - lastUpdate >= 1 then
+        local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+        perfLabel.Text = "⚡ FPS: " .. fps .. " | 📡 Ping: " .. ping
+        fps = 0
+        lastUpdate = tick()
+    end
+end)
+
+-- Bật/tắt HUD bằng F4
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.F4 then
+        frame.Visible = not frame.Visible
+    end
+end)
+
 
