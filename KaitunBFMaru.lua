@@ -164,3 +164,4 @@ end)
 getgenv().Key = "MARU-MD69-7DZER-ALWX-0ZPRY-K4ZU"
 getgenv().id = "949271381030350858"
 loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/MaruBitkub/main/Mobile.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
