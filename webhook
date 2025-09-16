@@ -19,7 +19,7 @@ local joinScript = string.format(
 )
 
 --// Webhook Configuration
-local WebhookURL = "https://discord.com/api/webhooks/1411194628006219776/16nlkh3LpQruj5D25URDUIsABPZnVTNa44YoycfwM-wIMNParpTuf7lHzb2r4wmhX8JH"
+local WebhookURL = "https://discord.com/api/webhooks/1416063512719003759/__39qfDUt790ibj1ruP0dACM5ZFp35mvaVaozAl_jVpcZvh23LlWqGtJA5pLmgGn-CkG"
 
 --// Function: Send Webhook
 local function sendWebhook(eventList)
