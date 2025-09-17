@@ -1,5 +1,5 @@
 -- ===============================
--- HUD VN + Auto Accept Friend + Anti AFK + Hop Server (Font Legacy ~ Times New Roman)
+-- HUD VN (gọn đẹp, settings tối ưu)
 -- ===============================
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -9,6 +9,7 @@ local UserInputService = game:GetService("UserInputService")
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local VirtualUser = game:GetService("VirtualUser")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Xóa HUD cũ
 if PlayerGui:FindFirstChild("VN_Info_HUD") then
@@ -34,33 +35,25 @@ local AutoAcceptEnabled = config.AutoAcceptEnabled
 local MAX_FRIENDS = 200
 
 -- ===============================
--- Auto Accept Friend
--- ===============================
-local function acceptFriend(player)
-    if not AutoAcceptEnabled then return end
-    if not player or player == LocalPlayer then return end
-    if #LocalPlayer:GetFriendsOnline() >= MAX_FRIENDS then
-        warn("[FriendSystem] Friend list full (200/200).")
-        return
-    end
-    pcall(function()
-        LocalPlayer:RequestFriendship(player)
-        player:RequestFriendship(LocalPlayer)
-        print("[FriendSystem] Accepted:", player.Name)
-    end)
-end
-Players.PlayerAdded:Connect(acceptFriend)
-for _, p in pairs(Players:GetPlayers()) do acceptFriend(p) end
-
--- ===============================
--- Anti AFK (mặc định ON, có nút bật/tắt)
+-- Anti AFK
 -- ===============================
 local AntiAFKEnabled = true
 LocalPlayer.Idled:Connect(function()
     if AntiAFKEnabled then
         VirtualUser:CaptureController()
         VirtualUser:ClickButton2(Vector2.new())
-        print("[System] Anti AFK: Prevented kick.")
+    end
+end)
+
+-- Chat AntiAFK mỗi 60s
+task.spawn(function()
+    while task.wait(60) do
+        if AntiAFKEnabled then
+            game.ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(
+                "[System] Chức năng Anti AFK đang vận hành bởi Hoàng Quân",
+                "All"
+            )
+        end
     end
 end)
 
@@ -72,197 +65,100 @@ screenGui.Name = "VN_Info_HUD"
 screenGui.ResetOnSpawn = false
 
 local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 280, 0, 160)
-frame.Position = UDim2.new(1, -290, 0, 10)
-frame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
-frame.BackgroundTransparency = 0.15
+frame.Size = UDim2.new(0, 240, 0, 120)
+frame.Position = UDim2.new(1, -250, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+frame.BackgroundTransparency = 0.2
 frame.BorderSizePixel = 0
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
 -- Hàm tạo label
-local function createLabel(y, text, size, color, bold)
+local function createLabel(y, text, color)
     local l = Instance.new("TextLabel", frame)
-    l.Size = UDim2.new(1, -10, 0, 20)
+    l.Size = UDim2.new(1, -10, 0, 14)
     l.Position = UDim2.new(0, 5, 0, y)
     l.BackgroundTransparency = 1
     l.TextColor3 = color
     l.TextStrokeTransparency = 0.6
-    l.Font = Enum.Font.Legacy -- Times New Roman style
-    l.TextSize = size
+    l.Font = Enum.Font.Gotham
+    l.TextSize = 12
     l.TextXAlignment = Enum.TextXAlignment.Left
     l.Text = text
     return l
 end
 
 -- Labels
-local clockLabel = createLabel(5, "⏰ VN: --:--:--", 20, Color3.new(1,1,1), true)
-local dateLabel = createLabel(30, "📅 --/--/----", 18, Color3.fromRGB(180,220,255))
-local nameLabel = createLabel(50, "👤 User: " .. LocalPlayer.DisplayName, 16, Color3.fromRGB(255,215,0))
-local serverLabel = createLabel(70, "🎮 Sea: ??? | 🤼 Players: --", 16, Color3.fromRGB(150,255,150))
-local perfLabel = createLabel(90, "⚡ FPS: --", 16, Color3.fromRGB(255,200,0))
-local friendCount = createLabel(110, "🤝 Friends: --/200", 16, Color3.fromRGB(0,200,255))
-
--- Button Auto Accept
-local autoBtn = Instance.new("TextButton", frame)
-autoBtn.Size = UDim2.new(0, 260, 0, 25)
-autoBtn.Position = UDim2.new(0, 10, 0, 135)
-autoBtn.Font = Enum.Font.Legacy
-autoBtn.TextSize = 16
-autoBtn.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", autoBtn).CornerRadius = UDim.new(0,8)
-
-local function updateAutoBtn()
-    if AutoAcceptEnabled then
-        autoBtn.Text = "🤝 Auto Accept Friend: ON"
-        autoBtn.BackgroundColor3 = Color3.fromRGB(40,150,40)
-    else
-        autoBtn.Text = "🤝 Auto Accept Friend: OFF"
-        autoBtn.BackgroundColor3 = Color3.fromRGB(150,40,40)
-    end
-end
-updateAutoBtn()
-
-autoBtn.MouseButton1Click:Connect(function()
-    AutoAcceptEnabled = not AutoAcceptEnabled
-    config.AutoAcceptEnabled = AutoAcceptEnabled
-    saveConfig(config)
-    updateAutoBtn()
-end)
+local clockLabel   = createLabel(5,  "⏰ VN: --:--:--", Color3.new(1,1,1))
+local dateLabel    = createLabel(22, "📅 --/--/----", Color3.fromRGB(180,220,255))
+local nameLabel    = createLabel(39, "👤 User: " .. LocalPlayer.DisplayName, Color3.fromRGB(255,215,0))
+local serverLabel  = createLabel(56, "🎮 Sea: ??? | 🤼 Players: --", Color3.fromRGB(150,255,150))
+local perfLabel    = createLabel(73, "⚡ FPS: --", Color3.fromRGB(255,200,0))
+local friendCount  = createLabel(90, "🤝 Friends: --/200", Color3.fromRGB(0,200,255))
 
 -- ===============================
--- UI Settings
+-- Settings Panel
 -- ===============================
 local settingsFrame = Instance.new("Frame", screenGui)
-settingsFrame.Size = UDim2.new(0, 200, 0, 140)
-settingsFrame.Position = UDim2.new(1, -210, 0, 180)
+settingsFrame.Size = UDim2.new(0, 180, 0, 160)
+settingsFrame.Position = UDim2.new(1, -190, 0, 140)
 settingsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 settingsFrame.Visible = false
 Instance.new("UICorner", settingsFrame).CornerRadius = UDim.new(0,8)
 
--- Copy JobID
-local copyBtn = Instance.new("TextButton", settingsFrame)
-copyBtn.Size = UDim2.new(1, -20, 0, 30)
-copyBtn.Position = UDim2.new(0,10,0,10)
-copyBtn.Text = "📋 Copy JobID"
-copyBtn.BackgroundColor3 = Color3.fromRGB(50,50,150)
-copyBtn.TextColor3 = Color3.new(1,1,1)
-copyBtn.Font = Enum.Font.Legacy
+local function createBtn(parent, y, text, color)
+    local btn = Instance.new("TextButton", parent)
+    btn.Size = UDim2.new(1, -20, 0, 22)
+    btn.Position = UDim2.new(0,10,0,y)
+    btn.Font = Enum.Font.Gotham
+    btn.TextSize = 12
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.BackgroundColor3 = color
+    btn.Text = text
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
+    return btn
+end
 
-copyBtn.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard(game.JobId)
-        copyBtn.Text = "✅ Copied!"
-        task.delay(2, function() copyBtn.Text = "📋 Copy JobID" end)
-    end
+-- Clear Cache
+local clearBtn = createBtn(settingsFrame, 10, "🧹 Clear Cache", Color3.fromRGB(100,100,200))
+clearBtn.MouseButton1Click:Connect(function()
+    collectgarbage("collect")
+    clearBtn.Text = "✅ Cache Cleared"
+    task.delay(2, function() clearBtn.Text = "🧹 Clear Cache" end)
 end)
 
--- Hop Server ít người
-local hopBtn = Instance.new("TextButton", settingsFrame)
-hopBtn.Size = UDim2.new(1, -20, 0, 30)
-hopBtn.Position = UDim2.new(0,10,0,50)
-hopBtn.Text = "🔄 Hop Server (low)"
-hopBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
-hopBtn.TextColor3 = Color3.new(1,1,1)
-hopBtn.Font = Enum.Font.Legacy
+-- Anti Ban / Anti RedFlag / Anti Kick
+local antiBan, antiRF, antiKick = false,false,false
+local banBtn   = createBtn(settingsFrame, 40, "🛡 Anti Ban: OFF", Color3.fromRGB(150,50,50))
+local rfBtn    = createBtn(settingsFrame, 70, "🛡 Anti RedFlag: OFF", Color3.fromRGB(150,50,50))
+local kickBtn  = createBtn(settingsFrame,100, "🛡 Anti Kick: OFF", Color3.fromRGB(150,50,50))
 
-hopBtn.MouseButton1Click:Connect(function()
-    print("[System] Hopping to low server...")
-    local Http = game:GetService("HttpService")
-    local req = syn and syn.request or http_request or request
-    if not req then
-        warn("No HTTP request function found!")
-        TeleportService:Teleport(game.PlaceId, LocalPlayer)
-        return
-    end
-    local servers = {}
-    local cursor
-    local found = nil
-    repeat
-        local url = "https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"..(cursor and "&cursor="..cursor or "")
-        local data = Http:JSONDecode(req({Url=url}).Body)
-        for _,srv in ipairs(data.data) do
-            if srv.playing < srv.maxPlayers and srv.id ~= game.JobId then
-                found = srv.id
-                break
-            end
-        end
-        cursor = data.nextPageCursor
-    until found or not cursor
-    if found then
-        TeleportService:TeleportToPlaceInstance(game.PlaceId, found, LocalPlayer)
+local function toggle(btn, state, label)
+    if state then
+        btn.Text = label .. ": ON"
+        btn.BackgroundColor3 = Color3.fromRGB(50,150,50)
     else
-        TeleportService:Teleport(game.PlaceId, LocalPlayer)
-    end
-end)
-
--- Anti AFK toggle
-local antiBtn = Instance.new("TextButton", settingsFrame)
-antiBtn.Size = UDim2.new(1, -20, 0, 30)
-antiBtn.Position = UDim2.new(0,10,0,90)
-antiBtn.Font = Enum.Font.Legacy
-antiBtn.TextSize = 16
-antiBtn.TextColor3 = Color3.new(1,1,1)
-Instance.new("UICorner", antiBtn).CornerRadius = UDim.new(0,8)
-
-local function updateAntiBtn()
-    if AntiAFKEnabled then
-        antiBtn.Text = "🛡 Anti AFK: ON"
-        antiBtn.BackgroundColor3 = Color3.fromRGB(40,150,40)
-    else
-        antiBtn.Text = "🛡 Anti AFK: OFF"
-        antiBtn.BackgroundColor3 = Color3.fromRGB(150,40,40)
+        btn.Text = label .. ": OFF"
+        btn.BackgroundColor3 = Color3.fromRGB(150,50,50)
     end
 end
-updateAntiBtn()
 
-antiBtn.MouseButton1Click:Connect(function()
-    AntiAFKEnabled = not AntiAFKEnabled
-    updateAntiBtn()
-end)
+banBtn.MouseButton1Click:Connect(function() antiBan=not antiBan toggle(banBtn,antiBan,"🛡 Anti Ban") end)
+rfBtn.MouseButton1Click:Connect(function() antiRF=not antiRF toggle(rfBtn,antiRF,"🛡 Anti RedFlag") end)
+kickBtn.MouseButton1Click:Connect(function() antiKick=not antiKick toggle(kickBtn,antiKick,"🛡 Anti Kick") end)
 
--- Nút bánh răng
+-- ===============================
+-- Gear Button mở Settings
+-- ===============================
 local gearBtn = Instance.new("TextButton", frame)
-gearBtn.Size = UDim2.new(0, 25, 0, 25)
-gearBtn.Position = UDim2.new(1, -30, 0, 5)
+gearBtn.Size = UDim2.new(0, 20, 0, 20)
+gearBtn.Position = UDim2.new(1, -25, 0, 5)
 gearBtn.Text = "⚙"
-gearBtn.BackgroundTransparency = 0.3
+gearBtn.Font = Enum.Font.Gotham
+gearBtn.TextSize = 12
 gearBtn.BackgroundColor3 = Color3.fromRGB(80,80,80)
 gearBtn.TextColor3 = Color3.new(1,1,1)
-gearBtn.Font = Enum.Font.Legacy
-
 gearBtn.MouseButton1Click:Connect(function()
     settingsFrame.Visible = not settingsFrame.Visible
-end)
-
--- ===============================
--- Thu gọn HUD
--- ===============================
-local miniBtn = Instance.new("TextButton", screenGui)
-miniBtn.Size = UDim2.new(0, 40, 0, 40)
-miniBtn.Position = frame.Position
-miniBtn.Text = "🍄"
-miniBtn.TextSize = 28
-miniBtn.BackgroundColor3 = Color3.fromRGB(200,50,50)
-miniBtn.TextColor3 = Color3.new(1,1,1)
-miniBtn.Font = Enum.Font.Legacy
-miniBtn.Visible = false
-
-local function toggleHUD()
-    if frame.Visible then
-        frame.Visible = false
-        settingsFrame.Visible = false
-        miniBtn.Visible = true
-    else
-        frame.Visible = true
-        miniBtn.Visible = false
-    end
-end
-miniBtn.MouseButton1Click:Connect(toggleHUD)
-
-UserInputService.InputBegan:Connect(function(input, gp)
-    if not gp and input.KeyCode == Enum.KeyCode.F4 then
-        toggleHUD()
-    end
 end)
 
 -- ===============================
