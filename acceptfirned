@@ -1,5 +1,5 @@
 -- ===============================
--- HUD VN + Auto Accept Friend + Anti AFK (Fix + Nâng cấp)
+-- HUD VN + Auto Accept Friend + Anti AFK + Hop Server
 -- ===============================
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -53,12 +53,15 @@ Players.PlayerAdded:Connect(acceptFriend)
 for _, p in pairs(Players:GetPlayers()) do acceptFriend(p) end
 
 -- ===============================
--- Anti AFK (luôn bật khi chạy)
+-- Anti AFK (mặc định ON, có nút bật/tắt)
 -- ===============================
+local AntiAFKEnabled = true
 LocalPlayer.Idled:Connect(function()
-    VirtualUser:CaptureController()
-    VirtualUser:ClickButton2(Vector2.new())
-    print("[System] Anti AFK: Prevented kick.")
+    if AntiAFKEnabled then
+        VirtualUser:CaptureController()
+        VirtualUser:ClickButton2(Vector2.new())
+        print("[System] Anti AFK: Prevented kick.")
+    end
 end)
 
 -- ===============================
@@ -130,12 +133,13 @@ end)
 -- UI Settings
 -- ===============================
 local settingsFrame = Instance.new("Frame", screenGui)
-settingsFrame.Size = UDim2.new(0, 200, 0, 100)
+settingsFrame.Size = UDim2.new(0, 200, 0, 140)
 settingsFrame.Position = UDim2.new(1, -210, 0, 180)
 settingsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 settingsFrame.Visible = false
 Instance.new("UICorner", settingsFrame).CornerRadius = UDim.new(0,8)
 
+-- Copy JobID
 local copyBtn = Instance.new("TextButton", settingsFrame)
 copyBtn.Size = UDim2.new(1, -20, 0, 30)
 copyBtn.Position = UDim2.new(0,10,0,10)
@@ -151,18 +155,70 @@ copyBtn.MouseButton1Click:Connect(function()
     end
 end)
 
+-- Hop Server ít người
 local hopBtn = Instance.new("TextButton", settingsFrame)
 hopBtn.Size = UDim2.new(1, -20, 0, 30)
 hopBtn.Position = UDim2.new(0,10,0,50)
-hopBtn.Text = "🔄 Hop Server (rejoin)"
+hopBtn.Text = "🔄 Hop Server (low)"
 hopBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
 hopBtn.TextColor3 = Color3.new(1,1,1)
 
 hopBtn.MouseButton1Click:Connect(function()
-    print("[System] Hopping server...")
-    TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    print("[System] Hopping to low server...")
+    local Http = game:GetService("HttpService")
+    local req = syn and syn.request or http_request or request
+    if not req then
+        warn("No HTTP request function found!")
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+        return
+    end
+    local servers = {}
+    local cursor
+    local found = nil
+    repeat
+        local url = "https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"..(cursor and "&cursor="..cursor or "")
+        local data = Http:JSONDecode(req({Url=url}).Body)
+        for _,srv in ipairs(data.data) do
+            if srv.playing < srv.maxPlayers and srv.id ~= game.JobId then
+                found = srv.id
+                break
+            end
+        end
+        cursor = data.nextPageCursor
+    until found or not cursor
+    if found then
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, found, LocalPlayer)
+    else
+        TeleportService:Teleport(game.PlaceId, LocalPlayer) -- fallback rejoin
+    end
 end)
 
+-- Anti AFK toggle
+local antiBtn = Instance.new("TextButton", settingsFrame)
+antiBtn.Size = UDim2.new(1, -20, 0, 30)
+antiBtn.Position = UDim2.new(0,10,0,90)
+antiBtn.Font = Enum.Font.GothamBold
+antiBtn.TextSize = 16
+antiBtn.TextColor3 = Color3.new(1,1,1)
+Instance.new("UICorner", antiBtn).CornerRadius = UDim.new(0,8)
+
+local function updateAntiBtn()
+    if AntiAFKEnabled then
+        antiBtn.Text = "🛡 Anti AFK: ON"
+        antiBtn.BackgroundColor3 = Color3.fromRGB(40,150,40)
+    else
+        antiBtn.Text = "🛡 Anti AFK: OFF"
+        antiBtn.BackgroundColor3 = Color3.fromRGB(150,40,40)
+    end
+end
+updateAntiBtn()
+
+antiBtn.MouseButton1Click:Connect(function()
+    AntiAFKEnabled = not AntiAFKEnabled
+    updateAntiBtn()
+end)
+
+-- Nút bánh răng
 local gearBtn = Instance.new("TextButton", frame)
 gearBtn.Size = UDim2.new(0, 25, 0, 25)
 gearBtn.Position = UDim2.new(1, -30, 0, 5)
