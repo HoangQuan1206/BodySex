@@ -1,5 +1,5 @@
 -- ===============================
--- HUD VN + Auto Accept Friend + Anti AFK + Hop Server
+-- HUD VN + Auto Accept Friend + Anti AFK + Hop Server (Font Legacy ~ Times New Roman)
 -- ===============================
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -87,7 +87,7 @@ local function createLabel(y, text, size, color, bold)
     l.BackgroundTransparency = 1
     l.TextColor3 = color
     l.TextStrokeTransparency = 0.6
-    l.Font = bold and Enum.Font.GothamBold or Enum.Font.Gotham
+    l.Font = Enum.Font.Legacy -- Times New Roman style
     l.TextSize = size
     l.TextXAlignment = Enum.TextXAlignment.Left
     l.Text = text
@@ -97,16 +97,16 @@ end
 -- Labels
 local clockLabel = createLabel(5, "⏰ VN: --:--:--", 20, Color3.new(1,1,1), true)
 local dateLabel = createLabel(30, "📅 --/--/----", 18, Color3.fromRGB(180,220,255))
-local nameLabel = createLabel(50, "👤 User: " .. LocalPlayer.DisplayName .. "(@" .. LocalPlayer.Name .. ")", 16, Color3.fromRGB(255,215,0))
+local nameLabel = createLabel(50, "👤 User: " .. LocalPlayer.DisplayName, 16, Color3.fromRGB(255,215,0))
 local serverLabel = createLabel(70, "🎮 Sea: ??? | 🤼 Players: --", 16, Color3.fromRGB(150,255,150))
-local perfLabel = createLabel(90, "⚡ FPS: -- | 📡 Ping: --", 16, Color3.fromRGB(255,200,0))
+local perfLabel = createLabel(90, "⚡ FPS: --", 16, Color3.fromRGB(255,200,0))
 local friendCount = createLabel(110, "🤝 Friends: --/200", 16, Color3.fromRGB(0,200,255))
 
 -- Button Auto Accept
 local autoBtn = Instance.new("TextButton", frame)
 autoBtn.Size = UDim2.new(0, 260, 0, 25)
 autoBtn.Position = UDim2.new(0, 10, 0, 135)
-autoBtn.Font = Enum.Font.GothamBold
+autoBtn.Font = Enum.Font.Legacy
 autoBtn.TextSize = 16
 autoBtn.TextColor3 = Color3.new(1,1,1)
 Instance.new("UICorner", autoBtn).CornerRadius = UDim.new(0,8)
@@ -146,6 +146,7 @@ copyBtn.Position = UDim2.new(0,10,0,10)
 copyBtn.Text = "📋 Copy JobID"
 copyBtn.BackgroundColor3 = Color3.fromRGB(50,50,150)
 copyBtn.TextColor3 = Color3.new(1,1,1)
+copyBtn.Font = Enum.Font.Legacy
 
 copyBtn.MouseButton1Click:Connect(function()
     if setclipboard then
@@ -162,6 +163,7 @@ hopBtn.Position = UDim2.new(0,10,0,50)
 hopBtn.Text = "🔄 Hop Server (low)"
 hopBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
 hopBtn.TextColor3 = Color3.new(1,1,1)
+hopBtn.Font = Enum.Font.Legacy
 
 hopBtn.MouseButton1Click:Connect(function()
     print("[System] Hopping to low server...")
@@ -189,7 +191,7 @@ hopBtn.MouseButton1Click:Connect(function()
     if found then
         TeleportService:TeleportToPlaceInstance(game.PlaceId, found, LocalPlayer)
     else
-        TeleportService:Teleport(game.PlaceId, LocalPlayer) -- fallback rejoin
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
     end
 end)
 
@@ -197,7 +199,7 @@ end)
 local antiBtn = Instance.new("TextButton", settingsFrame)
 antiBtn.Size = UDim2.new(1, -20, 0, 30)
 antiBtn.Position = UDim2.new(0,10,0,90)
-antiBtn.Font = Enum.Font.GothamBold
+antiBtn.Font = Enum.Font.Legacy
 antiBtn.TextSize = 16
 antiBtn.TextColor3 = Color3.new(1,1,1)
 Instance.new("UICorner", antiBtn).CornerRadius = UDim.new(0,8)
@@ -226,6 +228,7 @@ gearBtn.Text = "⚙"
 gearBtn.BackgroundTransparency = 0.3
 gearBtn.BackgroundColor3 = Color3.fromRGB(80,80,80)
 gearBtn.TextColor3 = Color3.new(1,1,1)
+gearBtn.Font = Enum.Font.Legacy
 
 gearBtn.MouseButton1Click:Connect(function()
     settingsFrame.Visible = not settingsFrame.Visible
@@ -241,6 +244,7 @@ miniBtn.Text = "🍄"
 miniBtn.TextSize = 28
 miniBtn.BackgroundColor3 = Color3.fromRGB(200,50,50)
 miniBtn.TextColor3 = Color3.new(1,1,1)
+miniBtn.Font = Enum.Font.Legacy
 miniBtn.Visible = false
 
 local function toggleHUD()
@@ -287,8 +291,7 @@ local fps,last=0,tick()
 RunService.RenderStepped:Connect(function()
     fps+=1
     if tick()-last>=1 then
-        local ping=game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
-        perfLabel.Text="⚡ FPS: "..fps.." | 📡 Ping: "..ping
+        perfLabel.Text="⚡ FPS: "..fps
         fps,last=0,tick()
     end
 end)
