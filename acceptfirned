@@ -1,236 +1,511 @@
--- ===============================
--- HUD VN + Auto Accept Friend (Fix + Nâng cấp)
--- ===============================
+-- BananaHub Unified - HUD + Auto features
+-- Author: Phan Hoang Quan (assembled per user request)
+-- Notes: requires exploit environment for writefile/readfile (optional).
+repeat task.wait() until game:IsLoaded() and game.Players.LocalPlayer
+
+-- Services
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local HttpService = game:GetService("HttpService")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
+local VirtualUser = game:GetService("VirtualUser")
 
--- Xóa HUD cũ
-if PlayerGui:FindFirstChild("VN_Info_HUD") then
-    PlayerGui.VN_Info_HUD:Destroy()
-end
-
--- ===============================
--- Config Auto Accept Friend
--- ===============================
-local CONFIG_FILE = "AutoAcceptFriendConfig.json"
-local function loadConfig()
-    if isfile and isfile(CONFIG_FILE) then
-        local ok, data = pcall(function() return HttpService:JSONDecode(readfile(CONFIG_FILE)) end)
-        if ok and data then return data end
+-- Config persistence helpers (writefile/readfile fallback to getgenv)
+local CONFIG_FILE = "bananahub_config.json"
+local function safeWriteFile(path, content)
+    if writefile then
+        pcall(function() writefile(path, content) end)
+        return true
     end
-    return {AutoAcceptEnabled = true}
+    return false
 end
-local function saveConfig(data)
-    if writefile then writefile(CONFIG_FILE, HttpService:JSONEncode(data)) end
+local function safeReadFile(path)
+    if readfile then
+        local ok, data = pcall(function() return readfile(path) end)
+        if ok then return data end
+    end
+    return nil
 end
-local config = loadConfig()
-local AutoAcceptEnabled = config.AutoAcceptEnabled
-local MAX_FRIENDS = 200
 
--- ===============================
--- Auto Accept Friend
--- ===============================
-local function acceptFriend(player)
-    if not AutoAcceptEnabled then return end
-    if not player or player == LocalPlayer then return end
-    if #LocalPlayer:GetFriendsOnline() >= MAX_FRIENDS then
-        warn("[FriendSystem] Friend list full (200/200).")
-        return
+local defaultConfig = {
+    AutoAcceptFriend = true,
+    AutoRejoin = true,
+    AutoAFK = true,
+    MaxFriends = 200,
+    UI_Position = { x = 1, y = -310 }, -- example
+}
+
+-- load config
+local Config = defaultConfig
+local raw = safeReadFile(CONFIG_FILE)
+if raw then
+    local ok, parsed = pcall(function() return HttpService:JSONDecode(raw) end)
+    if ok and type(parsed) == "table" then
+        for k,v in pairs(parsed) do Config[k] = v end
+    end
+else
+    -- fallback attempt to load from getgenv (if exists)
+    if getgenv and getgenv().BananaHubConfig then
+        for k,v in pairs(getgenv().BananaHubConfig) do Config[k] = v end
+    end
+end
+
+-- save helper
+local function saveConfig()
+    local ok, encoded = pcall(function() return HttpService:JSONEncode(Config) end)
+    if ok then
+        safeWriteFile(CONFIG_FILE, encoded)
+        if getgenv then getgenv().BananaHubConfig = Config end
+    end
+end
+
+-- UTIL: copy job id to clipboard (exploit dependent)
+local function copyToClipboard(text)
+    if setclipboard then
+        pcall(setclipboard, text)
+        return true
+    end
+    return false
+end
+
+-- UTIL: get display info
+local function formatPlayerDisplay()
+    local name = LocalPlayer.DisplayName or LocalPlayer.Name
+    local usr = "@" .. LocalPlayer.Name
+    return name, usr
+end
+
+-- Anti-AFK (VirtualUser)
+local antiafkConn
+local function enableAntiAFK(enable)
+    if enable then
+        if antiafkConn then return end
+        antiafkConn = LocalPlayer.Idled:Connect(function()
+            -- simulate a small action to prevent being kicked
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new(0,0))
+        end)
+    else
+        if antiafkConn then
+            antiafkConn:Disconnect()
+            antiafkConn = nil
+        end
+    end
+end
+
+-- Auto-Rejoin on disconnect / teleport errors
+local function enableAutoRejoin(enable)
+    Config.AutoRejoin = enable
+    saveConfig()
+end
+
+-- Auto Accept Friend implementation with limit check
+local friendConn
+local function getFriendCount()
+    -- Try LocalPlayer:GetFriendsAsync or GetFriendsOnline fallback
+    local ok, count = pcall(function()
+        if LocalPlayer.GetFriendsAsync then
+            local page = LocalPlayer:GetFriendsAsync()
+            -- GetFriendsAsync returns pages iterator; best effort: count isn't trivial.
+            -- fallback to GetFriendsOnline if available:
+            return #LocalPlayer:GetFriendsOnline()
+        else
+            if LocalPlayer.GetFriendsOnline then
+                return #LocalPlayer:GetFriendsOnline()
+            end
+        end
+        return 0
+    end)
+    if ok and type(count) == "number" then return count end
+    return 0
+end
+
+local function acceptFriendRequest(player)
+    if not player or not player:IsA("Player") or player == LocalPlayer then return end
+    -- check limit
+    local current = 0
+    pcall(function() current = getFriendCount() end)
+    if current >= (Config.MaxFriends or 200) then
+        -- reached limit, stop
+        return false, "max_friends"
     end
     pcall(function()
-        LocalPlayer:RequestFriendship(player)
-        player:RequestFriendship(LocalPlayer)
-        print("[FriendSystem] Accepted:", player.Name)
+        -- two-way request (best effort)
+        if LocalPlayer.RequestFriendship then
+            LocalPlayer:RequestFriendship(player)
+        end
+        if player.RequestFriendship then
+            player:RequestFriendship(LocalPlayer)
+        end
     end)
-end
-Players.PlayerAdded:Connect(acceptFriend)
-for _, p in pairs(Players:GetPlayers()) do acceptFriend(p) end
-
--- ===============================
--- UI Chính
--- ===============================
-local screenGui = Instance.new("ScreenGui", PlayerGui)
-screenGui.Name = "VN_Info_HUD"
-screenGui.ResetOnSpawn = false
-
-local frame = Instance.new("Frame", screenGui)
-frame.Size = UDim2.new(0, 280, 0, 160)
-frame.Position = UDim2.new(1, -290, 0, 10)
-frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-frame.BackgroundTransparency = 0.2
-frame.BorderSizePixel = 0
-
-local corner = Instance.new("UICorner", frame)
-corner.CornerRadius = UDim.new(0, 12)
-
--- Hàm tạo label
-local function createLabel(y, text, size, color, bold)
-    local l = Instance.new("TextLabel", frame)
-    l.Size = UDim2.new(1, -10, 0, 20)
-    l.Position = UDim2.new(0, 5, 0, y)
-    l.BackgroundTransparency = 1
-    l.TextColor3 = color
-    l.TextStrokeTransparency = 0.6
-    l.Font = bold and Enum.Font.SourceSansBold or Enum.Font.SourceSans
-    l.TextSize = size
-    l.TextXAlignment = Enum.TextXAlignment.Left
-    l.Text = text
-    return l
+    return true
 end
 
--- Labels
-local clockLabel = createLabel(5, "⏰ VN: --:--:--", 20, Color3.new(1,1,1), true)
-local dateLabel = createLabel(30, "📅 --/--/----", 18, Color3.fromRGB(180,220,255))
-local nameLabel = createLabel(50, "👤 User: " .. LocalPlayer.DisplayName.."(@"..LocalPlayer.Name..")", 16, Color3.fromRGB(255,215,0))
-local serverLabel = createLabel(70, "🎮 Sea: ??? | 🤼 Players: --", 16, Color3.fromRGB(150,255,150))
-local perfLabel = createLabel(90, "⚡ FPS: -- | 📡 Ping: --", 16, Color3.fromRGB(255,200,0))
-local friendCount = createLabel(110, "🤝 Friends: --/200", 16, Color3.fromRGB(0,200,255))
-
--- Button Auto Accept
-local autoBtn = Instance.new("TextButton", frame)
-autoBtn.Size = UDim2.new(0, 260, 0, 25)
-autoBtn.Position = UDim2.new(0, 10, 0, 135)
-autoBtn.Font = Enum.Font.SourceSansBold
-autoBtn.TextSize = 16
-
-local btnCorner = Instance.new("UICorner", autoBtn)
-btnCorner.CornerRadius = UDim.new(0,8)
-
-local function updateAutoBtn()
-    if AutoAcceptEnabled then
-        autoBtn.Text = "🤝 Auto Accept Friend: ON"
-        autoBtn.BackgroundColor3 = Color3.fromRGB(40,150,40)
+local function setAutoAcceptFriend(enable)
+    Config.AutoAcceptFriend = enable
+    saveConfig()
+    if enable then
+        if friendConn then friendConn:Disconnect() end
+        friendConn = Players.PlayerAdded:Connect(function(p)
+            -- tiny delay to let player replication settle
+            task.delay(0.6, function()
+                pcall(function() acceptFriendRequest(p) end)
+            end)
+        end)
+        -- accept for players already in server
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= LocalPlayer then
+                pcall(function() acceptFriendRequest(p) end)
+            end
+        end
     else
-        autoBtn.Text = "🤝 Auto Accept Friend: OFF"
-        autoBtn.BackgroundColor3 = Color3.fromRGB(150,40,40)
-    end
-    autoBtn.TextColor3 = Color3.new(1,1,1)
-end
-updateAutoBtn()
-
-autoBtn.MouseButton1Click:Connect(function()
-    AutoAcceptEnabled = not AutoAcceptEnabled
-    config.AutoAcceptEnabled = AutoAcceptEnabled
-    saveConfig(config)
-    updateAutoBtn()
-end)
-
--- ===============================
--- UI Settings (bánh răng)
--- ===============================
-local settingsFrame = Instance.new("Frame", screenGui)
-settingsFrame.Size = UDim2.new(0, 200, 0, 100)
-settingsFrame.Position = UDim2.new(1, -210, 0, 180)
-settingsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-settingsFrame.Visible = false
-
-local sCorner = Instance.new("UICorner", settingsFrame)
-sCorner.CornerRadius = UDim.new(0,8)
-
-local copyBtn = Instance.new("TextButton", settingsFrame)
-copyBtn.Size = UDim2.new(1, -20, 0, 30)
-copyBtn.Position = UDim2.new(0,10,0,10)
-copyBtn.Text = "📋 Copy JobID"
-copyBtn.BackgroundColor3 = Color3.fromRGB(50,50,150)
-copyBtn.TextColor3 = Color3.new(1,1,1)
-
-copyBtn.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard(game.JobId)
-        copyBtn.Text = "✅ Copied!"
-        task.delay(2, function() copyBtn.Text = "📋 Copy JobID" end)
-    end
-end)
-
-local hopBtn = Instance.new("TextButton", settingsFrame)
-hopBtn.Size = UDim2.new(1, -20, 0, 30)
-hopBtn.Position = UDim2.new(0,10,0,50)
-hopBtn.Text = "🔄 Hop Server (low)"
-hopBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
-hopBtn.TextColor3 = Color3.new(1,1,1)
-
-hopBtn.MouseButton1Click:Connect(function()
-    print("[System] Hopping server...")
-    TeleportService:Teleport(game.PlaceId, LocalPlayer)
-end)
-
--- Nút bánh răng
-local gearBtn = Instance.new("TextButton", frame)
-gearBtn.Size = UDim2.new(0, 25, 0, 25)
-gearBtn.Position = UDim2.new(1, -30, 0, 5)
-gearBtn.Text = "⚙"
-gearBtn.BackgroundTransparency = 0.3
-gearBtn.BackgroundColor3 = Color3.fromRGB(80,80,80)
-gearBtn.TextColor3 = Color3.new(1,1,1)
-
-gearBtn.MouseButton1Click:Connect(function()
-    settingsFrame.Visible = not settingsFrame.Visible
-end)
-
--- ===============================
--- Thu gọn HUD
--- ===============================
-local miniBtn = Instance.new("TextButton", screenGui)
-miniBtn.Size = UDim2.new(0, 40, 0, 40)
-miniBtn.Position = frame.Position
-miniBtn.Text = "🍄"
-miniBtn.TextSize = 28
-miniBtn.BackgroundColor3 = Color3.fromRGB(200,50,50)
-miniBtn.TextColor3 = Color3.new(1,1,1)
-miniBtn.Visible = false
-
-local function toggleHUD()
-    if frame.Visible then
-        frame.Visible = false
-        settingsFrame.Visible = false
-        miniBtn.Visible = true
-    else
-        frame.Visible = true
-        miniBtn.Visible = false
+        if friendConn then friendConn:Disconnect() friendConn = nil end
     end
 end
-miniBtn.MouseButton1Click:Connect(toggleHUD)
 
--- F4 để ẩn/hiện
-UserInputService.InputBegan:Connect(function(input, gp)
-    if not gp and input.KeyCode == Enum.KeyCode.F4 then
-        toggleHUD()
-    end
-end)
+-- initial AutoAccept toggle
+setAutoAcceptFriend(Config.AutoAcceptFriend)
+enableAntiAFK(Config.AutoAFK)
 
--- ===============================
--- Update thông tin
--- ===============================
-local function getSea()
-    local id = game.PlaceId
-    if id==2753915549 then return "First"
-    elseif id==4442272183 then return "Second"
-    elseif id==7449423635 then return "Third"
-    else return "Unknown" end
-end
-
+-- Auto rejoin handler (watch prompt GUI for disconnects / kicks)
 task.spawn(function()
     while task.wait(1) do
-        local now=os.date("!*t")
-        local vnHour=(now.hour+7)%24
-        clockLabel.Text="⏰ VN: "..string.format("%02d:%02d:%02d",vnHour,now.min,now.sec)
-        dateLabel.Text="📅 "..string.format("%02d/%02d/%04d",now.day,now.month,now.year)
-        serverLabel.Text="🎮 "..getSea().." | 🤼 Players: "..#Players:GetPlayers()
-        friendCount.Text="🤝 Friends: "..#Players:GetPlayers().."/200"
+        if Config.AutoRejoin then
+            local prompt = game.CoreGui:FindFirstChild("RobloxPromptGui")
+            if prompt then
+                for _, v in pairs(prompt:GetDescendants()) do
+                    if v:IsA("TextLabel") and v.Text and v.Text ~= "" then
+                        local txt = string.lower(v.Text)
+                        if string.find(txt, "you were kicked") or string.find(txt, "disconnected") or string.find(txt, "lost connection") then
+                            -- attempt rejoin
+                            pcall(function()
+                                TeleportService:Teleport(game.PlaceId, LocalPlayer)
+                            end)
+                        end
+                    end
+                end
+            end
+        end
     end
 end)
 
-local fps,last=0,tick()
-RunService.RenderStepped:Connect(function()
-    fps+=1
-    if tick()-last>=1 then
-        local ping=game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
-        perfLabel.Text="⚡ FPS: "..fps.." | 📡 Ping: "..ping
-        fps,last=0,tick()
+-- HUD Creation
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+-- Remove old banana HUD if exists
+pcall(function() local old = PlayerGui:FindFirstChild("BananaHubGUI"); if old then old:Destroy() end end)
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "BananaHubGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = PlayerGui
+
+-- Main Frame
+local frame = Instance.new("Frame")
+frame.Name = "MainFrame"
+frame.Size = UDim2.new(0, 300, 0, 165)
+frame.Position = UDim2.new(1, -320, 0, 10)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+frame.BackgroundTransparency = 0
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 10)
+
+-- header clock
+local clockLabel = Instance.new("TextLabel", frame)
+clockLabel.Size = UDim2.new(1, -16, 0, 28)
+clockLabel.Position = UDim2.new(0, 8, 0, 8)
+clockLabel.BackgroundTransparency = 1
+clockLabel.TextColor3 = Color3.fromRGB(255,255,255)
+clockLabel.Font = Enum.Font.GothamBold
+clockLabel.TextSize = 16
+clockLabel.TextXAlignment = Enum.TextXAlignment.Left
+clockLabel.Text = "⏰ VN: --:--:--"
+
+-- date label
+local dateLabel = Instance.new("TextLabel", frame)
+dateLabel.Size = UDim2.new(1, -16, 0, 20)
+dateLabel.Position = UDim2.new(0, 8, 0, 36)
+dateLabel.BackgroundTransparency = 1
+dateLabel.TextColor3 = Color3.fromRGB(180,200,255)
+dateLabel.Font = Enum.Font.Gotham
+dateLabel.TextSize = 14
+dateLabel.TextXAlignment = Enum.TextXAlignment.Left
+dateLabel.Text = "📅 --/--/----"
+
+-- credit
+local creditLabel = Instance.new("TextLabel", frame)
+creditLabel.Size = UDim2.new(1, -16, 0, 20)
+creditLabel.Position = UDim2.new(0, 8, 0, 56)
+creditLabel.BackgroundTransparency = 1
+creditLabel.TextColor3 = Color3.fromRGB(255,215,0)
+creditLabel.Font = Enum.Font.GothamBold
+creditLabel.TextSize = 14
+creditLabel.TextXAlignment = Enum.TextXAlignment.Left
+creditLabel.Text = "🚀 Vận hành bởi Hoàng Quân (Mario)"
+
+-- server info
+local serverLabel = Instance.new("TextLabel", frame)
+serverLabel.Size = UDim2.new(1, -16, 0, 20)
+serverLabel.Position = UDim2.new(0, 8, 0, 78)
+serverLabel.BackgroundTransparency = 1
+serverLabel.TextColor3 = Color3.fromRGB(150,255,150)
+serverLabel.Font = Enum.Font.Gotham
+serverLabel.TextSize = 13
+serverLabel.TextXAlignment = Enum.TextXAlignment.Left
+serverLabel.Text = "🎮 Sea: ? | Players: ?"
+
+-- perf label
+local perfLabel = Instance.new("TextLabel", frame)
+perfLabel.Size = UDim2.new(1, -16, 0, 20)
+perfLabel.Position = UDim2.new(0, 8, 0, 98)
+perfLabel.BackgroundTransparency = 1
+perfLabel.TextColor3 = Color3.fromRGB(255,170,0)
+perfLabel.Font = Enum.Font.Gotham
+perfLabel.TextSize = 13
+perfLabel.TextXAlignment = Enum.TextXAlignment.Left
+perfLabel.Text = "⚡ FPS: -- | 📡 Ping: --"
+
+-- friends info (shows "Friends: n/Max" if readable)
+local friendLabel = Instance.new("TextLabel", frame)
+friendLabel.Size = UDim2.new(1, -16, 0, 20)
+friendLabel.Position = UDim2.new(0, 8, 0, 118)
+friendLabel.BackgroundTransparency = 1
+friendLabel.TextColor3 = Color3.fromRGB(255,255,255)
+friendLabel.Font = Enum.Font.Gotham
+friendLabel.TextSize = 13
+friendLabel.TextXAlignment = Enum.TextXAlignment.Left
+friendLabel.Text = "🤝 Friends: ?/.."
+
+-- Auto Accept toggle button (big)
+local acceptBtn = Instance.new("TextButton", frame)
+acceptBtn.Size = UDim2.new(1, -16, 0, 28)
+acceptBtn.Position = UDim2.new(0, 8, 0, 138)
+acceptBtn.Font = Enum.Font.GothamBold
+acceptBtn.TextSize = 15
+acceptBtn.AutoButtonColor = false
+acceptBtn.TextColor3 = Color3.fromRGB(255,255,255)
+acceptBtn.Text = "🤝 Auto Accept Friend: OFF"
+acceptBtn.BackgroundColor3 = Color3.fromRGB(165, 40, 40)
+local btnCorner = Instance.new("UICorner", acceptBtn); btnCorner.CornerRadius = UDim.new(0,8)
+
+-- Settings panel (hidden by default)
+local settingsPanel = Instance.new("Frame", screenGui)
+settingsPanel.Name = "SettingsPanel"
+settingsPanel.Size = UDim2.new(0, 200, 0, 140)
+settingsPanel.Position = UDim2.new(1, -220, 0, 180)
+settingsPanel.BackgroundColor3 = Color3.fromRGB(25,25,28)
+settingsPanel.Visible = false
+settingsPanel.BorderSizePixel = 0
+local setCorner = Instance.new("UICorner", settingsPanel); setCorner.CornerRadius = UDim.new(0,8)
+
+-- Settings buttons
+local function makeSettingButton(parent, y, txt, color)
+    local b = Instance.new("TextButton", parent)
+    b.Size = UDim2.new(1, -16, 0, 30)
+    b.Position = UDim2.new(0,8,0,y)
+    b.BackgroundColor3 = color
+    b.Text = txt
+    b.Font = Enum.Font.GothamBold
+    b.TextSize = 14
+    b.TextColor3 = Color3.fromRGB(255,255,255)
+    local c = Instance.new("UICorner", b); c.CornerRadius = UDim.new(0,6)
+    return b
+end
+
+local copyBtn = makeSettingButton(settingsPanel, 8, "📋 Copy JobID", Color3.fromRGB(60,60,120))
+local hopBtn = makeSettingButton(settingsPanel, 46, "🔀 Hop Server (rejoin)", Color3.fromRGB(160,40,40))
+local rejoinToggle = makeSettingButton(settingsPanel, 84, "🔁 Auto Rejoin: OFF", Color3.fromRGB(60,160,60))
+
+-- mini collapse avatar (for collapsed HUD)
+local collapseBtn = Instance.new("ImageButton", screenGui)
+collapseBtn.Name = "CollapseAvatar"
+collapseBtn.Size = UDim2.new(0,48,0,48)
+collapseBtn.Position = UDim2.new(1, -68, 0, 10)
+collapseBtn.BackgroundColor3 = Color3.fromRGB(255,255,255)
+collapseBtn.BackgroundTransparency = 1
+collapseBtn.Image = "rbxassetid://6031094678" -- cute avatar placeholder
+collapseBtn.Visible = false -- hidden because frame already visible; used for collapse/un-collapse
+local collapseCorner = Instance.new("UICorner", collapseBtn); collapseCorner.CornerRadius = UDim.new(0,12)
+
+-- small gear on top-right of frame to open settings
+local gearBtn = Instance.new("ImageButton", frame)
+gearBtn.Size = UDim2.new(0,26,0,26)
+gearBtn.Position = UDim2.new(1, -34, 0, 6)
+gearBtn.BackgroundTransparency = 1
+gearBtn.Image = "rbxassetid://3926305870" -- gear icon (roblox)
+gearBtn.ImageColor3 = Color3.fromRGB(200,200,200)
+
+-- UI logic / functions
+local fpsCounter = 0
+local lastTick = tick()
+
+-- update loop (once per second)
+task.spawn(function()
+    while task.wait(1) do
+        -- Time VN
+        local now = os.date("!*t")
+        local vnHour = (now.hour + 7) % 24
+        local timeTxt = string.format("%02d:%02d:%02d", vnHour, now.min, now.sec)
+        clockLabel.Text = "⏰ VN: " .. timeTxt
+        dateLabel.Text = "📅 " .. string.format("%02d/%02d/%04d", now.day, now.month, now.year)
+
+        -- server info
+        local sea = "Unknown"
+        if game.PlaceId == 2753915549 then sea = "First" elseif game.PlaceId == 4442272183 then sea = "Second" elseif game.PlaceId == 7449423635 then sea = "Third" end
+        serverLabel.Text = "🎮 " .. sea .. " | Players: " .. tostring(#Players:GetPlayers())
+
+        -- friend count (best-effort)
+        local friendCount = 0
+        pcall(function()
+            if LocalPlayer.GetFriendsOnline then
+                friendCount = #LocalPlayer:GetFriendsOnline()
+            else
+                friendCount = getFriendCount() or 0
+            end
+        end)
+        friendLabel.Text = "🤝 Friends: " .. tostring(friendCount) .. "/" .. tostring(Config.MaxFriends or 200)
+
+        -- update accept button look
+        if Config.AutoAcceptFriend then
+            acceptBtn.BackgroundColor3 = Color3.fromRGB(25,160,50)
+            acceptBtn.Text = "🤝 Auto Accept Friend: ON"
+        else
+            acceptBtn.BackgroundColor3 = Color3.fromRGB(165, 40, 40)
+            acceptBtn.Text = "🤝 Auto Accept Friend: OFF"
+        end
+
+        -- rejoin display
+        if Config.AutoRejoin then
+            rejoinToggle.BackgroundColor3 = Color3.fromRGB(25,160,50)
+            rejoinToggle.Text = "🔁 Auto Rejoin: ON"
+        else
+            rejoinToggle.BackgroundColor3 = Color3.fromRGB(165,40,40)
+            rejoinToggle.Text = "🔁 Auto Rejoin: OFF"
+        end
     end
 end)
+
+-- FPS / Ping update on render
+RunService.RenderStepped:Connect(function(dt)
+    fpsCounter = fpsCounter + 1
+    if tick() - lastTick >= 1 then
+        local fps = fpsCounter
+        local ping = "??"
+        pcall(function()
+            ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+        end)
+        perfLabel.Text = "⚡ FPS: " .. tostring(fps) .. " | 📡 Ping: " .. tostring(ping)
+        fpsCounter = 0
+        lastTick = tick()
+    end
+end)
+
+-- Button interactions
+acceptBtn.MouseButton1Click:Connect(function()
+    Config.AutoAcceptFriend = not Config.AutoAcceptFriend
+    saveConfig()
+    setAutoAcceptFriend(Config.AutoAcceptFriend)
+end)
+
+gearBtn.MouseButton1Click:Connect(function()
+    settingsPanel.Visible = not settingsPanel.Visible
+end)
+
+copyBtn.MouseButton1Click:Connect(function()
+    local job = tostring(game.JobId or "Unknown")
+    local success = copyToClipboard(job)
+    if success then
+        copyBtn.Text = "✅ Copied!"
+        task.delay(1.2, function() copyBtn.Text = "📋 Copy JobID" end)
+    else
+        copyBtn.Text = "❌ No setclipboard"
+        task.delay(1.2, function() copyBtn.Text = "📋 Copy JobID" end)
+    end
+end)
+
+hopBtn.MouseButton1Click:Connect(function()
+    -- simple rejoin/hop (Teleport to same place => new server)
+    pcall(function()
+        TeleportService:Teleport(game.PlaceId, LocalPlayer)
+    end)
+end)
+
+rejoinToggle.MouseButton1Click:Connect(function()
+    Config.AutoRejoin = not Config.AutoRejoin
+    saveConfig()
+end)
+
+-- collapse / expand functionality
+local collapsed = false
+local function collapseHUD()
+    frame.Visible = false
+    settingsPanel.Visible = false
+    collapseBtn.Visible = true
+    collapsed = true
+end
+local function expandHUD()
+    frame.Visible = true
+    collapseBtn.Visible = false
+    collapsed = false
+end
+
+-- clicking avatar collapse toggle
+collapseBtn.MouseButton1Click:Connect(function()
+    if collapsed then expandHUD() else collapseHUD() end
+end)
+
+-- gear: also allow closing with right click (for convenience)
+gearBtn.MouseButton2Click:Connect(function()
+    settingsPanel.Visible = false
+end)
+
+-- F4 toggles HUD
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.F4 then
+        if frame.Visible or settingsPanel.Visible then
+            collapseHUD()
+        else
+            expandHUD()
+        end
+    end
+end)
+
+-- ensure UI is light on resources
+frame.Visible = true
+settingsPanel.Visible = false
+
+-- enable toggled features
+setAutoAcceptFriend(Config.AutoAcceptFriend)
+enableAntiAFK(Config.AutoAFK)
+
+-- Optional small notifications for actions (visual Roblox)
+local function smallNotice(text, duration)
+    pcall(function()
+        local notif = Instance.new("TextLabel")
+        notif.Size = UDim2.new(0, 220, 0, 36)
+        notif.Position = UDim2.new(0.5, -110, 0.2, 0)
+        notif.BackgroundColor3 = Color3.fromRGB(20,20,25)
+        notif.TextColor3 = Color3.fromRGB(255,255,255)
+        notif.Text = text
+        notif.Font = Enum.Font.GothamBold
+        notif.TextSize = 16
+        notif.Parent = screenGui
+        local c = Instance.new("UICorner", notif); c.CornerRadius = UDim.new(0,8)
+        task.delay(duration or 1.2, function() pcall(function() notif:Destroy() end) end)
+    end)
+end
+
+-- Show initial notice
+smallNotice("BananaHub loaded ✔", 1.5)
+
+-- Save config on exit (if possible)
+game:BindToClose(function()
+    saveConfig()
+end)
+
+-- END OF SCRIPT
