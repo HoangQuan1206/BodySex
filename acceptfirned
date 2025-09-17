@@ -1,5 +1,5 @@
 -- ===============================
--- VN HUD - by Hoang Quan
+-- VN HUD - bản fix by Hoang Quan
 -- ===============================
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -10,7 +10,6 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local VirtualUser = game:GetService("VirtualUser")
 local Stats = game:GetService("Stats")
-local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 
 -- Xóa HUD cũ
@@ -19,7 +18,7 @@ if PlayerGui:FindFirstChild("VN_Info_HUD") then
 end
 
 -- ===============================
--- Config (AutoAccept, Theme)
+-- Config
 -- ===============================
 local CONFIG_FILE = "VN_HUD_Config.json"
 local function loadConfig()
@@ -27,13 +26,20 @@ local function loadConfig()
         local ok, data = pcall(function() return HttpService:JSONDecode(readfile(CONFIG_FILE)) end)
         if ok and data then return data end
     end
-    return {AutoAcceptEnabled = true, Theme = "Dark"}
+    return {
+        AutoAcceptEnabled = true,
+        AntiBan = false,
+        AntiRF = false,
+        AntiKick = false,
+        Theme = "Dark"
+    }
 end
 local function saveConfig(data)
     if writefile then writefile(CONFIG_FILE, HttpService:JSONEncode(data)) end
 end
 local config = loadConfig()
 local AutoAcceptEnabled = config.AutoAcceptEnabled
+local antiBan, antiRF, antiKick = config.AntiBan, config.AntiRF, config.AntiKick
 local Theme = config.Theme
 
 -- ===============================
@@ -81,7 +87,6 @@ frame.BackgroundTransparency = 0.2
 frame.BorderSizePixel = 0
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 8)
 
--- Hàm tạo label
 local function createLabel(y, text, color)
     local l = Instance.new("TextLabel", frame)
     l.Size = UDim2.new(1, -10, 0, 15)
@@ -96,7 +101,6 @@ local function createLabel(y, text, color)
     return l
 end
 
--- Labels
 local clockLabel   = createLabel(5,  "⏰ VN: --:--:--", Color3.new(1,1,1))
 local dateLabel    = createLabel(22, "📅 --/--/----", Color3.fromRGB(180,220,255))
 local nameLabel    = createLabel(39, "👤 User: " .. LocalPlayer.DisplayName, Color3.fromRGB(255,215,0))
@@ -143,7 +147,7 @@ for _, p in pairs(Players:GetPlayers()) do acceptFriend(p) end
 -- Settings Panel
 -- ===============================
 local settingsFrame = Instance.new("Frame", screenGui)
-settingsFrame.Size = UDim2.new(0, 200, 0, 250)
+settingsFrame.Size = UDim2.new(0, 200, 0, 220)
 settingsFrame.Position = UDim2.new(1, -210, 0, 160)
 settingsFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
 settingsFrame.Visible = false
@@ -198,31 +202,28 @@ autoBtn.MouseButton1Click:Connect(function()
 end)
 
 -- Anti Ban / RedFlag / Kick
-local banBtn = createBtn(settingsFrame,100,"🛡 Anti Ban: OFF",Color3.fromRGB(150,50,50))
-local rfBtn  = createBtn(settingsFrame,130,"🛡 Anti RedFlag: OFF",Color3.fromRGB(150,50,50))
-local kickBtn= createBtn(settingsFrame,160,"🛡 Anti Kick: OFF",Color3.fromRGB(150,50,50))
-local antiBan,antiRF,antiKick=false,false,false
-local function toggle(btn,state,label)
-    if state then btn.Text=label..": ON" btn.BackgroundColor3=Color3.fromRGB(50,150,50)
-    else btn.Text=label..": OFF" btn.BackgroundColor3=Color3.fromRGB(150,50,50) end
-end
-banBtn.MouseButton1Click:Connect(function() antiBan=not antiBan toggle(banBtn,antiBan,"🛡 Anti Ban") end)
-rfBtn.MouseButton1Click:Connect(function() antiRF=not antiRF toggle(rfBtn,antiRF,"🛡 Anti RedFlag") end)
-kickBtn.MouseButton1Click:Connect(function() antiKick=not antiKick toggle(kickBtn,antiKick,"🛡 Anti Kick") end)
+local banBtn = createBtn(settingsFrame,100,"🛡 Anti Ban: "..(antiBan and "ON" or "OFF"),antiBan and Color3.fromRGB(50,150,50) or Color3.fromRGB(150,50,50))
+local rfBtn  = createBtn(settingsFrame,130,"🛡 Anti RedFlag: "..(antiRF and "ON" or "OFF"),antiRF and Color3.fromRGB(50,150,50) or Color3.fromRGB(150,50,50))
+local kickBtn= createBtn(settingsFrame,160,"🛡 Anti Kick: "..(antiKick and "ON" or "OFF"),antiKick and Color3.fromRGB(50,150,50) or Color3.fromRGB(150,50,50))
 
--- Music toggle
-local musicBtn = createBtn(settingsFrame,190,"🎵 Music: ON",Color3.fromRGB(50,150,50))
-local musicOn=true
-musicBtn.MouseButton1Click:Connect(function()
-    musicOn=not musicOn
-    SoundService.RespectFilteringEnabled=false
-    for _,s in pairs(SoundService:GetChildren()) do if s:IsA("Sound") then s.Volume= musicOn and 0.5 or 0 end end
-    musicBtn.Text="🎵 Music: "..(musicOn and "ON" or "OFF")
-    musicBtn.BackgroundColor3= musicOn and Color3.fromRGB(50,150,50) or Color3.fromRGB(150,50,50)
+banBtn.MouseButton1Click:Connect(function()
+    antiBan = not antiBan config.AntiBan = antiBan saveConfig(config)
+    banBtn.Text="🛡 Anti Ban: "..(antiBan and "ON" or "OFF")
+    banBtn.BackgroundColor3=antiBan and Color3.fromRGB(50,150,50) or Color3.fromRGB(150,50,50)
+end)
+rfBtn.MouseButton1Click:Connect(function()
+    antiRF = not antiRF config.AntiRF = antiRF saveConfig(config)
+    rfBtn.Text="🛡 Anti RedFlag: "..(antiRF and "ON" or "OFF")
+    rfBtn.BackgroundColor3=antiRF and Color3.fromRGB(50,150,50) or Color3.fromRGB(150,50,50)
+end)
+kickBtn.MouseButton1Click:Connect(function()
+    antiKick = not antiKick config.AntiKick = antiKick saveConfig(config)
+    kickBtn.Text="🛡 Anti Kick: "..(antiKick and "ON" or "OFF")
+    kickBtn.BackgroundColor3=antiKick and Color3.fromRGB(50,150,50) or Color3.fromRGB(150,50,50)
 end)
 
 -- Theme toggle
-local themeBtn = createBtn(settingsFrame,220,"🎨 Theme: "..Theme,Color3.fromRGB(100,100,100))
+local themeBtn = createBtn(settingsFrame,190,"🎨 Theme: "..Theme,Color3.fromRGB(100,100,100))
 themeBtn.MouseButton1Click:Connect(function()
     local order={"Dark","Blue","Red","Neon"}
     local idx=table.find(order,Theme) or 1
@@ -234,20 +235,7 @@ themeBtn.MouseButton1Click:Connect(function()
     themeBtn.Text="🎨 Theme: "..Theme
 end)
 
--- Gear button
-local gearBtn = Instance.new("TextButton", frame)
-gearBtn.Size = UDim2.new(0,20,0,20)
-gearBtn.Position = UDim2.new(1,-25,0,5)
-gearBtn.Text="⚙"
-gearBtn.Font=Enum.Font.Gotham
-gearBtn.TextSize=12
-gearBtn.BackgroundColor3=currentTheme.accent
-gearBtn.TextColor3=Color3.new(1,1,1)
-gearBtn.MouseButton1Click:Connect(function() settingsFrame.Visible=not settingsFrame.Visible end)
-
--- ===============================
--- Mini Stats HUD
--- ===============================
+-- Mini Stats toggle
 local statsFrame = Instance.new("Frame", screenGui)
 statsFrame.Size=UDim2.new(0,200,0,120)
 statsFrame.Position=UDim2.new(0.5,-100,0.5,-60)
@@ -266,42 +254,21 @@ statsLabel.TextYAlignment=Enum.TextYAlignment.Top
 statsLabel.TextColor3=Color3.new(1,1,1)
 statsLabel.Text="Mini Stats HUD"
 
--- Mở stats bằng phím F5
-UserInputService.InputBegan:Connect(function(input,gp)
-    if not gp and input.KeyCode==Enum.KeyCode.F5 then
-        statsFrame.Visible=not statsFrame.Visible
-    end
+local statsBtn = createBtn(settingsFrame,220,"📊 Mini Stats",Color3.fromRGB(80,120,200))
+statsBtn.MouseButton1Click:Connect(function()
+    statsFrame.Visible=not statsFrame.Visible
 end)
 
--- ===============================
--- Friends click -> UI truyện demo
--- ===============================
-local friendsUI = Instance.new("Frame", screenGui)
-friendsUI.Size=UDim2.new(0,300,0,200)
-friendsUI.Position=UDim2.new(0.5,-150,0.5,-100)
-friendsUI.BackgroundColor3=Color3.fromRGB(20,20,20)
-friendsUI.Visible=false
-Instance.new("UICorner",friendsUI).CornerRadius=UDim.new(0,10)
-
-local img=Instance.new("ImageLabel",friendsUI)
-img.Size=UDim2.new(1,-20,1,-50)
-img.Position=UDim2.new(0,10,0,40)
-img.BackgroundTransparency=1
-img.Image="rbxassetid://6031071053"
-
-local closeBtn=Instance.new("TextButton",friendsUI)
-closeBtn.Size=UDim2.new(0,80,0,25)
-closeBtn.Position=UDim2.new(0.5,-40,1,-35)
-closeBtn.Text="Đóng"
-closeBtn.Font=Enum.Font.Gotham
-closeBtn.TextSize=12
-closeBtn.BackgroundColor3=Color3.fromRGB(200,50,50)
-closeBtn.TextColor3=Color3.new(1,1,1)
-Instance.new("UICorner",closeBtn).CornerRadius=UDim.new(0,6)
-closeBtn.MouseButton1Click:Connect(function() friendsUI.Visible=false end)
-
-friendCount.Active=true
-friendCount.MouseButton1Click:Connect(function() friendsUI.Visible=true end)
+-- Gear button
+local gearBtn = Instance.new("TextButton", frame)
+gearBtn.Size = UDim2.new(0,20,0,20)
+gearBtn.Position = UDim2.new(1,-25,0,5)
+gearBtn.Text="⚙"
+gearBtn.Font=Enum.Font.Gotham
+gearBtn.TextSize=12
+gearBtn.BackgroundColor3=currentTheme.accent
+gearBtn.TextColor3=Color3.new(1,1,1)
+gearBtn.MouseButton1Click:Connect(function() settingsFrame.Visible=not settingsFrame.Visible end)
 
 -- ===============================
 -- Update Info Loop
@@ -322,6 +289,7 @@ task.spawn(function()
         dateLabel.Text="📅 "..string.format("%02d/%02d/%04d",now.day,now.month,now.year)
         serverLabel.Text="🎮 "..getSea().." | 🤼 Players: "..#Players:GetPlayers()
         friendCount.Text="🤝 Friends: "..#Players:GetPlayers().."/200"
+
         -- Ping
         local ping=Stats.Network.ServerStatsItem["Data Ping"]:GetValueString()
         local num=tonumber(ping:match("%d+"))
@@ -331,6 +299,7 @@ task.spawn(function()
             elseif num<200 then pingLabel.TextColor3=Color3.fromRGB(255,200,0)
             else pingLabel.TextColor3=Color3.fromRGB(255,0,0) end
         end
+
         -- Tracker
         local c=0
         if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -349,5 +318,8 @@ end)
 local fps,last=0,tick()
 RunService.RenderStepped:Connect(function()
     fps+=1
-    if tick()-last>=1 then perfLabel.Text="⚡ FPS: "..fps fps,last=0,tick() end
+    if tick()-last>=1 then
+        perfLabel.Text="⚡ FPS: "..fps
+        fps,last=0,tick()
+    end
 end)
