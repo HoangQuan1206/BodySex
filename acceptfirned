@@ -1,205 +1,236 @@
 -- ===============================
--- Auto Accept Friend + HUD VN Clock (Config + Info nâng cao)
+-- HUD VN + Auto Accept Friend (Fix + Nâng cấp)
 -- ===============================
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
 
--- Xoá panel cũ nếu có
+-- Xóa HUD cũ
 if PlayerGui:FindFirstChild("VN_Info_HUD") then
     PlayerGui.VN_Info_HUD:Destroy()
 end
 
 -- ===============================
--- Config lưu trạng thái
+-- Config Auto Accept Friend
 -- ===============================
 local CONFIG_FILE = "AutoAcceptFriendConfig.json"
-local HttpService = game:GetService("HttpService")
-
 local function loadConfig()
     if isfile and isfile(CONFIG_FILE) then
-        local success, data = pcall(function()
-            return HttpService:JSONDecode(readfile(CONFIG_FILE))
-        end)
-        if success and data and data.AutoAcceptEnabled ~= nil then
-            return data
-        end
+        local ok, data = pcall(function() return HttpService:JSONDecode(readfile(CONFIG_FILE)) end)
+        if ok and data then return data end
     end
-    return { AutoAcceptEnabled = true }
+    return {AutoAcceptEnabled = true}
 end
-
 local function saveConfig(data)
-    if writefile then
-        writefile(CONFIG_FILE, HttpService:JSONEncode(data))
-    end
+    if writefile then writefile(CONFIG_FILE, HttpService:JSONEncode(data)) end
 end
-
 local config = loadConfig()
 local AutoAcceptEnabled = config.AutoAcceptEnabled
 local MAX_FRIENDS = 200
 
 -- ===============================
--- Hàm auto accept
+-- Auto Accept Friend
 -- ===============================
-local function acceptFriendRequest(player)
+local function acceptFriend(player)
     if not AutoAcceptEnabled then return end
     if not player or player == LocalPlayer then return end
-
     if #LocalPlayer:GetFriendsOnline() >= MAX_FRIENDS then
-        alertLabel.Text = "⚠️ Friend list full (200/200)"
-        warn("[FriendSystem] Đã đủ " .. MAX_FRIENDS .. " bạn, dừng auto.")
+        warn("[FriendSystem] Friend list full (200/200).")
         return
     end
-
     pcall(function()
         LocalPlayer:RequestFriendship(player)
         player:RequestFriendship(LocalPlayer)
-        alertLabel.Text = "✅ Added friend: " .. player.Name
         print("[FriendSystem] Accepted:", player.Name)
-        task.delay(3, function() alertLabel.Text = "" end)
     end)
 end
-
--- Event người mới vào
-Players.PlayerAdded:Connect(acceptFriendRequest)
-for _, player in pairs(Players:GetPlayers()) do
-    acceptFriendRequest(player)
-end
+Players.PlayerAdded:Connect(acceptFriend)
+for _, p in pairs(Players:GetPlayers()) do acceptFriend(p) end
 
 -- ===============================
--- UI HUD
+-- UI Chính
 -- ===============================
-local screenGui = Instance.new("ScreenGui")
+local screenGui = Instance.new("ScreenGui", PlayerGui)
 screenGui.Name = "VN_Info_HUD"
-screenGui.Parent = PlayerGui
 screenGui.ResetOnSpawn = false
 
--- Khung nền
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 280, 0, 190)
+local frame = Instance.new("Frame", screenGui)
+frame.Size = UDim2.new(0, 280, 0, 160)
 frame.Position = UDim2.new(1, -290, 0, 10)
 frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 frame.BackgroundTransparency = 0.2
 frame.BorderSizePixel = 0
-frame.Parent = screenGui
 
-local corner = Instance.new("UICorner")
+local corner = Instance.new("UICorner", frame)
 corner.CornerRadius = UDim.new(0, 12)
-corner.Parent = frame
 
 -- Hàm tạo label
-local function createLabel(yPos, text, size, color, bold)
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, -10, 0, 20)
-    label.Position = UDim2.new(0, 5, 0, yPos)
-    label.BackgroundTransparency = 1
-    label.TextColor3 = color
-    label.TextStrokeTransparency = 0.6
-    label.Font = bold and Enum.Font.SourceSansBold or Enum.Font.SourceSans
-    label.TextSize = size
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.Text = text
-    label.Parent = frame
-    return label
+local function createLabel(y, text, size, color, bold)
+    local l = Instance.new("TextLabel", frame)
+    l.Size = UDim2.new(1, -10, 0, 20)
+    l.Position = UDim2.new(0, 5, 0, y)
+    l.BackgroundTransparency = 1
+    l.TextColor3 = color
+    l.TextStrokeTransparency = 0.6
+    l.Font = bold and Enum.Font.SourceSansBold or Enum.Font.SourceSans
+    l.TextSize = size
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Text = text
+    return l
 end
 
 -- Labels
-local clockLabel = createLabel(5, "⏰ VN: --:--:--", 20, Color3.fromRGB(255, 255, 255), true)
-local dateLabel = createLabel(30, "📅 --/--/----", 18, Color3.fromRGB(180, 220, 255))
-local nameLabel = createLabel(50, "👤 User: " .. LocalPlayer.DisplayName .. "(@".. LocalPlayer.Name..")", 16, Color3.fromRGB(255, 215, 0))
-local levelLabel = createLabel(70, "📈 Level: --", 16, Color3.fromRGB(200, 200, 255))
-local serverLabel = createLabel(90, "🎮 Sea: ??? | 🤼 Players: --", 16, Color3.fromRGB(150, 255, 150))
-local perfLabel = createLabel(110, "⚡ FPS: -- | 📡 Ping: --", 16, Color3.fromRGB(255, 200, 0))
-local friendCountLabel = createLabel(130, "🤝 Friends: --/200", 16, Color3.fromRGB(0, 200, 255))
-local alertLabel = createLabel(150, "", 16, Color3.fromRGB(255, 100, 100), true)
+local clockLabel = createLabel(5, "⏰ VN: --:--:--", 20, Color3.new(1,1,1), true)
+local dateLabel = createLabel(30, "📅 --/--/----", 18, Color3.fromRGB(180,220,255))
+local nameLabel = createLabel(50, "👤 User: " .. LocalPlayer.DisplayName.."(@"..LocalPlayer.Name..")", 16, Color3.fromRGB(255,215,0))
+local serverLabel = createLabel(70, "🎮 Sea: ??? | 🤼 Players: --", 16, Color3.fromRGB(150,255,150))
+local perfLabel = createLabel(90, "⚡ FPS: -- | 📡 Ping: --", 16, Color3.fromRGB(255,200,0))
+local friendCount = createLabel(110, "🤝 Friends: --/200", 16, Color3.fromRGB(0,200,255))
 
--- Nút ON/OFF Auto Accept
-local button = Instance.new("TextButton")
-button.Size = UDim2.new(0, 260, 0, 25)
-button.Position = UDim2.new(0, 10, 0, 165)
-button.TextSize = 16
-button.Font = Enum.Font.SourceSansBold
-button.Parent = frame
+-- Button Auto Accept
+local autoBtn = Instance.new("TextButton", frame)
+autoBtn.Size = UDim2.new(0, 260, 0, 25)
+autoBtn.Position = UDim2.new(0, 10, 0, 135)
+autoBtn.Font = Enum.Font.SourceSansBold
+autoBtn.TextSize = 16
 
-local btnCorner = Instance.new("UICorner")
-btnCorner.CornerRadius = UDim.new(0, 8)
-btnCorner.Parent = button
+local btnCorner = Instance.new("UICorner", autoBtn)
+btnCorner.CornerRadius = UDim.new(0,8)
 
-local function updateButton()
+local function updateAutoBtn()
     if AutoAcceptEnabled then
-        button.Text = "🤝 Auto Accept Friend: ON"
-        button.BackgroundColor3 = Color3.fromRGB(40, 150, 40)
-        button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        button.BorderColor3 = Color3.fromRGB(0, 255, 0)
+        autoBtn.Text = "🤝 Auto Accept Friend: ON"
+        autoBtn.BackgroundColor3 = Color3.fromRGB(40,150,40)
     else
-        button.Text = "🤝 Auto Accept Friend: OFF"
-        button.BackgroundColor3 = Color3.fromRGB(150, 40, 40)
-        button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        button.BorderColor3 = Color3.fromRGB(255, 0, 0)
+        autoBtn.Text = "🤝 Auto Accept Friend: OFF"
+        autoBtn.BackgroundColor3 = Color3.fromRGB(150,40,40)
     end
+    autoBtn.TextColor3 = Color3.new(1,1,1)
 end
-updateButton()
+updateAutoBtn()
 
-button.MouseButton1Click:Connect(function()
+autoBtn.MouseButton1Click:Connect(function()
     AutoAcceptEnabled = not AutoAcceptEnabled
     config.AutoAcceptEnabled = AutoAcceptEnabled
     saveConfig(config)
-    updateButton()
-    print("[FriendSystem] Auto Accept:", AutoAcceptEnabled and "ON" or "OFF")
+    updateAutoBtn()
 end)
 
 -- ===============================
--- Hàm lấy Sea theo PlaceId
+-- UI Settings (bánh răng)
+-- ===============================
+local settingsFrame = Instance.new("Frame", screenGui)
+settingsFrame.Size = UDim2.new(0, 200, 0, 100)
+settingsFrame.Position = UDim2.new(1, -210, 0, 180)
+settingsFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+settingsFrame.Visible = false
+
+local sCorner = Instance.new("UICorner", settingsFrame)
+sCorner.CornerRadius = UDim.new(0,8)
+
+local copyBtn = Instance.new("TextButton", settingsFrame)
+copyBtn.Size = UDim2.new(1, -20, 0, 30)
+copyBtn.Position = UDim2.new(0,10,0,10)
+copyBtn.Text = "📋 Copy JobID"
+copyBtn.BackgroundColor3 = Color3.fromRGB(50,50,150)
+copyBtn.TextColor3 = Color3.new(1,1,1)
+
+copyBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard(game.JobId)
+        copyBtn.Text = "✅ Copied!"
+        task.delay(2, function() copyBtn.Text = "📋 Copy JobID" end)
+    end
+end)
+
+local hopBtn = Instance.new("TextButton", settingsFrame)
+hopBtn.Size = UDim2.new(1, -20, 0, 30)
+hopBtn.Position = UDim2.new(0,10,0,50)
+hopBtn.Text = "🔄 Hop Server (low)"
+hopBtn.BackgroundColor3 = Color3.fromRGB(150,50,50)
+hopBtn.TextColor3 = Color3.new(1,1,1)
+
+hopBtn.MouseButton1Click:Connect(function()
+    print("[System] Hopping server...")
+    TeleportService:Teleport(game.PlaceId, LocalPlayer)
+end)
+
+-- Nút bánh răng
+local gearBtn = Instance.new("TextButton", frame)
+gearBtn.Size = UDim2.new(0, 25, 0, 25)
+gearBtn.Position = UDim2.new(1, -30, 0, 5)
+gearBtn.Text = "⚙"
+gearBtn.BackgroundTransparency = 0.3
+gearBtn.BackgroundColor3 = Color3.fromRGB(80,80,80)
+gearBtn.TextColor3 = Color3.new(1,1,1)
+
+gearBtn.MouseButton1Click:Connect(function()
+    settingsFrame.Visible = not settingsFrame.Visible
+end)
+
+-- ===============================
+-- Thu gọn HUD
+-- ===============================
+local miniBtn = Instance.new("TextButton", screenGui)
+miniBtn.Size = UDim2.new(0, 40, 0, 40)
+miniBtn.Position = frame.Position
+miniBtn.Text = "🍄"
+miniBtn.TextSize = 28
+miniBtn.BackgroundColor3 = Color3.fromRGB(200,50,50)
+miniBtn.TextColor3 = Color3.new(1,1,1)
+miniBtn.Visible = false
+
+local function toggleHUD()
+    if frame.Visible then
+        frame.Visible = false
+        settingsFrame.Visible = false
+        miniBtn.Visible = true
+    else
+        frame.Visible = true
+        miniBtn.Visible = false
+    end
+end
+miniBtn.MouseButton1Click:Connect(toggleHUD)
+
+-- F4 để ẩn/hiện
+UserInputService.InputBegan:Connect(function(input, gp)
+    if not gp and input.KeyCode == Enum.KeyCode.F4 then
+        toggleHUD()
+    end
+end)
+
+-- ===============================
+-- Update thông tin
 -- ===============================
 local function getSea()
-    local placeId = game.PlaceId
-    if placeId == 2753915549 then return "First"
-    elseif placeId == 4442272183 then return "Second"
-    elseif placeId == 7449423635 then return "Third"
+    local id = game.PlaceId
+    if id==2753915549 then return "First"
+    elseif id==4442272183 then return "Second"
+    elseif id==7449423635 then return "Third"
     else return "Unknown" end
 end
 
--- ===============================
--- Update Clock + Info
--- ===============================
 task.spawn(function()
     while task.wait(1) do
-        local now = os.date("!*t")
-        local vnHour = (now.hour + 7) % 24
-        clockLabel.Text = "⏰ VN: " .. string.format("%02d:%02d:%02d", vnHour, now.min, now.sec)
-        dateLabel.Text = "📅 " .. string.format("%02d/%02d/%04d", now.day, now.month, now.year)
-
-        -- level (nếu có)
-        local leaderstats = LocalPlayer:FindFirstChild("leaderstats")
-        if leaderstats and leaderstats:FindFirstChild("Level") then
-            levelLabel.Text = "📈 Level: " .. leaderstats.Level.Value
-        end
-
-        serverLabel.Text = "🎮 " .. getSea() .. " | 🤼 Players: " .. tostring(#Players:GetPlayers())
-        friendCountLabel.Text = "🤝 Friends: " .. tostring(#Players:GetPlayers()) .. "/"..MAX_FRIENDS
+        local now=os.date("!*t")
+        local vnHour=(now.hour+7)%24
+        clockLabel.Text="⏰ VN: "..string.format("%02d:%02d:%02d",vnHour,now.min,now.sec)
+        dateLabel.Text="📅 "..string.format("%02d/%02d/%04d",now.day,now.month,now.year)
+        serverLabel.Text="🎮 "..getSea().." | 🤼 Players: "..#Players:GetPlayers()
+        friendCount.Text="🤝 Friends: "..#Players:GetPlayers().."/200"
     end
 end)
 
--- ===============================
--- Update FPS + Ping
--- ===============================
-local fps, lastUpdate = 0, tick()
+local fps,last=0,tick()
 RunService.RenderStepped:Connect(function()
-    fps += 1
-    if tick() - lastUpdate >= 1 then
-        local ping = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
-        perfLabel.Text = "⚡ FPS: " .. fps .. " | 📡 Ping: " .. ping
-        fps, lastUpdate = 0, tick()
-    end
-end)
-
--- ===============================
--- Phím tắt ẩn/hiện HUD (F4)
--- ===============================
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-    if not gameProcessed and input.KeyCode == Enum.KeyCode.F4 then
-        frame.Visible = not frame.Visible
+    fps+=1
+    if tick()-last>=1 then
+        local ping=game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+        perfLabel.Text="⚡ FPS: "..fps.." | 📡 Ping: "..ping
+        fps,last=0,tick()
     end
 end)
