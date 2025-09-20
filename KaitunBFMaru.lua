@@ -119,4 +119,4 @@ _G.Hop_Settings = {
 (getgenv()).id = "949271381030350858";
 loadstring(game:HttpGet("https://raw.githubusercontent.com/xshiba/MaruComkak/main/PCBit.lua"))()
 print("Đang Load Script FPS")
-loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
+
