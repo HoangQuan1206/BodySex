@@ -80,7 +80,10 @@ getgenv().SettingFarm = {
     },
     ["Sniper Fruit Shop"] = {
         ["Enabled"] = true,
-        ["Fruit"] = {"Leopard-Leopard","Kitsune-Kitsune","Dragon-Dragon","Yeti-Yeti","Gas-Gas"},
+        ["Fruit"] = {"Rumble-Rumble", "Pain-Pain", "Gravity-Gravity", "Dough-Dough", 
+        "Shadow-Shadow", "Venom-Venom", "Control-Control", "Gas-Gas", 
+        "Spirit-Spirit", "Dragon-Dragon", "Mammoth-Mammoth", "Leopard-Leopard", 
+        "East Dragon-East Dragon", "West Dragon-West Dragon"},
     },
     ["Lock Fruit"] = {"Rumble-Rumble", "Pain-Pain", "Gravity-Gravity", "Dough-Dough", 
         "Shadow-Shadow", "Venom-Venom", "Control-Control", "Gas-Gas", 
