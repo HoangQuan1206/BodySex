@@ -1,24 +1,29 @@
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+
 getgenv().Key = "fce29705ab1438631ae8d43c"
+
 getgenv().SettingFarm = {
+    ["Auto Add Friend"] = {
+        ["Enabled"] = true,
+        ["RequestDelay"] = 1,
+        ["LoopDelay"] = 15
+    },
     ["Hide UI"] = true,
     ["Reset Teleport"] = {
-        ["Enabled"] = true,
+        ["Enabled"] = false,
         ["Delay Reset"] = 3,
         ["Item Dont Reset"] = {
             ["Fruit"] = {
                 ["Enabled"] = true,
-                ["All Fruit"] = true, 
+                ["All Fruit"] = true,
                 ["Select Fruit"] = {
                     ["Enabled"] = true,
-                    ["Fruit"] = {
-                        "Magma-Magma", "Quake-Quake", "Buddha-Buddha", "Love-Love", 
+                    ["Fruit"] = {"Magma-Magma", "Quake-Quake", "Buddha-Buddha", "Love-Love", 
                         "Spider-Spider", "Sound-Sound", "Phoenix-Phoenix", "Portal-Portal", 
                         "Rumble-Rumble", "Pain-Pain", "Gravity-Gravity", "Dough-Dough", 
                         "Shadow-Shadow", "Venom-Venom", "Control-Control", "Gas-Gas", 
                         "Spirit-Spirit", "Dragon-Dragon", "Mammoth-Mammoth", "Leopard-Leopard", 
-                        "East Dragon-East Dragon", "West Dragon-West Dragon"
-                    },
+                        "East Dragon-East Dragon", "West Dragon-West Dragon"},
                 },
             },
         },
@@ -26,23 +31,22 @@ getgenv().SettingFarm = {
     ["White Screen"] = false,
     ["Lock Fps"] = {
         ["Enabled"] = true,
-        ["FPS"] = 120,
+        ["FPS"] = 30,
     },
     ["Get Items"] = {
         ["Saber"] = true,
         ["Godhuman"] = true,
         ["Skull Guitar"] = true,
-        ["Valkyrie Helm"] = true,
         ["Mirror Fractal"] = true,
         ["Cursed Dual Katana"] = true,
         ["Upgrade Race V2-V3"] = true,
         ["Auto Pull Lever"] = true,
-        ["Shark Anchor"] = true,
+        ["Shark Anchor"] = true
     },
     ["Get Rare Items"] = {
-        ["Rengoku"] = true,
-        ["Dragon Trident"] = true, 
-        ["Pole (1st Form)"] = true,
+        ["Rengoku"] = false,
+        ["Dragon Trident"] = false,
+        ["Pole (1st Form)"] = false,
         ["Gravity Blade"] = true,
     },
     ["Farm Fragments"] = {
@@ -51,21 +55,21 @@ getgenv().SettingFarm = {
     },
     ["Auto Chat"] = {
         ["Enabled"] = false,
-        ["Text"] = " anhhub kaitun ontop : danhng. ",
+        ["Text"] = "Config that cut tay",
     },
     ["Auto Summon Rip Indra"] = true,
     ["Select Hop"] = {
-        ["Hop Server If Have Player Near"] = false, 
-        ["Hop Find Rip Indra Get Valkyrie Helm or Get Tushita"] = true, 
+        ["Hop Server If Have Player Near"] = true,
+        ["Hop Find Rip Indra Get Valkyrie Helm or Get Tushita"] = true,
         ["Hop Find Dough King Get Mirror Fractal"] = true,
-        ["Hop Find Raids Castle [CDK]"] = false,
+        ["Hop Find Raids Castle [CDK]"] = true,
         ["Hop Find Cake Queen [CDK]"] = true,
         ["Hop Find Soul Reaper [CDK]"] = true,
         ["Hop Find Darkbeard [SG]"] = true,
         ["Hop Find Mirage [ Pull Lever ]"] = true,
     },
     ["Farm Mastery"] = {
-        ["Melee"] = true,
+        ["Melee"] = false,
         ["Sword"] = false,
     },
     ["Buy Haki"] = {
@@ -76,29 +80,20 @@ getgenv().SettingFarm = {
     },
     ["Sniper Fruit Shop"] = {
         ["Enabled"] = true,
-        ["Fruit"] = {
-            "Rumble-Rumble", "Pain-Pain", "Gravity-Gravity", "Dough-Dough", 
-            "Shadow-Shadow", "Venom-Venom", "Control-Control", "Gas-Gas", 
-            "Spirit-Spirit", "Dragon-Dragon", "Mammoth-Mammoth", "Leopard-Leopard", 
-            "East Dragon-East Dragon", "West Dragon-West Dragon"
-        },
+        ["Fruit"] = {"Leopard-Leopard","Kitsune-Kitsune","Dragon-Dragon","Yeti-Yeti","Gas-Gas"},
     },
-    ["Get Race"] = {
-        ["Cyborg"] = true,
-        ["Ghoul"] = false,
-        ["Draco"] = false,
-    },
-    ["Lock Fruit"] = {
-        "Rumble-Rumble", "Pain-Pain", "Gravity-Gravity", "Dough-Dough", 
+    ["Lock Fruit"] = {"Rumble-Rumble", "Pain-Pain", "Gravity-Gravity", "Dough-Dough", 
         "Shadow-Shadow", "Venom-Venom", "Control-Control", "Gas-Gas", 
         "Spirit-Spirit", "Dragon-Dragon", "Mammoth-Mammoth", "Leopard-Leopard", 
-        "East Dragon-East Dragon", "West Dragon-West Dragon"
-    },
+        "East Dragon-East Dragon", "West Dragon-West Dragon"},
     ["Webhook"] = {
         ["Enabled"] = true,
-        ["WebhookUrl"] = "https://discord.com/api/webhooks/1411194628006219776/16nlkh3LpQruj5D25URDUIsABPZnVTNa44YoycfwM-wIMNParpTuf7lHzb2r4wmhX8JH",
+        ["WebhookUrl"] = "",
     }
 }
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 
+task.delay(7,function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/SkibidiHub111/BloxFruit/refs/heads/main/ConfigBanana"))()
+end)
