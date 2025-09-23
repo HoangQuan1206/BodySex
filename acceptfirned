@@ -1,61 +1,67 @@
---// UI của Hoàng Quân
-local ScreenGui = Instance.new("ScreenGui")
-local Frame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local Stats = Instance.new("TextLabel")
+--// UI Banana - Made by Hoàng Quân
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local StatsService = game:GetService("Stats")
 
-ScreenGui.Parent = game:GetService("CoreGui")
+-- Xóa UI cũ nếu có
+if CoreGui:FindFirstChild("BananaUI") then
+    CoreGui.BananaUI:Destroy()
+end
+
+-- ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "BananaUI"
+ScreenGui.Parent = CoreGui
 
 -- Frame
+local Frame = Instance.new("Frame")
 Frame.Parent = ScreenGui
-Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
 Frame.Size = UDim2.new(0, 420, 0, 120)
-Frame.Position = UDim2.new(0.5, -210, 0.1, 0)
-Frame.BackgroundTransparency = 0.3
+Frame.Position = UDim2.new(0.5, -210, 0.08, 0)
+Frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Frame.BackgroundTransparency = 0.25
 Frame.BorderSizePixel = 0
 Frame.Active = true
 Frame.Draggable = true
 
 -- Title
+local Title = Instance.new("TextLabel")
 Title.Parent = Frame
-Title.Text = "⚡ Config Banana - Made by Hoàng Quân ⚡"
 Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "⚡ Config Banana - Made by Hoàng Quân ⚡"
 Title.BackgroundTransparency = 1
 Title.TextColor3 = Color3.fromRGB(200, 180, 255)
-Title.TextScaled = true
 Title.Font = Enum.Font.GothamBlack
+Title.TextScaled = true
 
--- Stats
-Stats.Parent = Frame
-Stats.Text = "FPS: 0 | Players: 0 | Ping: 0ms"
-Stats.Size = UDim2.new(1, 0, 0, 50)
-Stats.Position = UDim2.new(0, 0, 0, 60)
-Stats.BackgroundTransparency = 1
-Stats.TextColor3 = Color3.fromRGB(255, 255, 0)
-Stats.Font = Enum.Font.GothamBold
-Stats.TextScaled = true
-
--- Services
-local RS = game:GetService("RunService")
-local Players = game:GetService("Players")
-local StatsService = game:GetService("Stats")
+-- Stats Label
+local StatsLabel = Instance.new("TextLabel")
+StatsLabel.Parent = Frame
+StatsLabel.Size = UDim2.new(1, 0, 0, 60)
+StatsLabel.Position = UDim2.new(0, 0, 0, 50)
+StatsLabel.BackgroundTransparency = 1
+StatsLabel.Text = "FPS: 0 | Players: 0 | Ping: 0ms"
+StatsLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+StatsLabel.Font = Enum.Font.GothamBold
+StatsLabel.TextScaled = true
 
 -- Update Stats
 task.spawn(function()
     while task.wait(1) do
-        local fps = math.floor(1 / RS.RenderStepped:Wait())
+        local fps = math.floor(1 / RunService.RenderStepped:Wait())
         local ping = math.floor(StatsService.Network.ServerStatsItem["Data Ping"]:GetValue())
         local playerCount = #Players:GetPlayers()
 
-        -- Màu FPS
-        local fpsColor = Color3.fromRGB(0,255,0) -- mặc định xanh
+        -- Chọn màu FPS
+        local fpsColor = Color3.fromRGB(0,255,0) -- xanh mượt
         if fps < 30 then
-            fpsColor = Color3.fromRGB(255,0,0) -- đỏ lag nặng
+            fpsColor = Color3.fromRGB(255,0,0) -- đỏ lag
         elseif fps < 50 then
             fpsColor = Color3.fromRGB(255,255,0) -- vàng hơi lag
         end
 
-        Stats.TextColor3 = fpsColor
-        Stats.Text = string.format("FPS: %d | Players: %d | Ping: %dms", fps, playerCount, ping)
+        StatsLabel.TextColor3 = fpsColor
+        StatsLabel.Text = string.format("FPS: %d | Players: %d | Ping: %dms", fps, playerCount, ping)
     end
 end)
