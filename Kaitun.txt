@@ -1,47 +1,62 @@
-getgenv().Team = "Pirates"
-getgenv().Config = {
-    ["Farm"] = {
-        ["Skip Level"] = true,
-        ["Raids"] = { 
-            ["Lock Fragment"] = 50000,
-            ["Awakening Fruit"] = true
+getgenv().AutoRejon = true
+getgenv().AutoExecute = true
+
+Config = Config or {
+    Main = {
+
+        Process = {
+            Weapon = {
+                "Saber",
+                "Auto Fully Fighting Style",
+                "Cursed Dual Katana",
+                "Skull Guitar",
+                "Shark Anchor",
+            },
+
+            Item = {
+                "Mirror Fractal",
+            },
+
+            Player = {
+                "Upgrade Race V2-V3",
+                "Pull Lever",
+            },
         },
-        ["Lock Race"] = {},
-        ["Evo Race"] = true
-    },
-    ["Quest"] = {
-        ["Citizen Quest"] = true,
-        ["RGP Color"] = false,
-        ["Pull Lever"] = true
-    },
-    ["Item"] = {
-        ["Get Pole"] = false,
-        ["Get Saber"] = true,
-        ["Get Soul Cane"] = false,
-        ["Get Bisento"] = false,
-        ["Get Rengoku"] = false,
-        ["Get Midnight Blade"] = false,
-        ["Skull Guitar"] = true,
-        ["Cursed Dual Katana"] = true,
-        ["Get Kabucha"] = true,
-        ["Get Mirror Fractal when have God's Chalice"] = true,
-        ["Collect Berries"] = false
-    },
-    ["Settings"] = {
-        ["FPS Boost"] = true,
-        ["Black Screen"] = false,
-        ["Method"] = "Half", -- Mastery Sword
-        ["Buy Zoro Sw"] = true,
-        ["Bring Range"] = 350,
-        ["Hop if any player is nearby"] = true
-    },
-    ["Fruit"] = {
-        ["Select Fruit"] = "Rumble-Rumble", "Pain-Pain", "Gravity-Gravity", "Dough-Dough", 
-        "Shadow-Shadow", "Venom-Venom", "Control-Control", "Gas-Gas", 
-        "Spirit-Spirit", "Dragon-Dragon", "Mammoth-Mammoth", "Leopard-Leopard", 
-        "East Dragon-East Dragon", "West Dragon-West Dragon", -- Dough-Dough
-        ["Snipe Fruit"] = false
+
+        MethodHop = {
+            PlayerNearingHop = false,
+            FindMirageLever = false,
+            FindBoss = {
+                "Rip Indra",
+                "Dough King",
+                "Cake Queen [CDK Quest]",
+                "Soul Reaper [CDK Quest]",
+                "Darkbeard [Skull GuitarProgress]",
+            },
+        },
+
+        SniperFruitShop = {
+            Enabled = true,
+            Fruit = {
+                "Control-Control",
+                "Dough-Dough",
+                "Dragon-Dragon",
+                "East Dragon-East Dragon",
+                "Gas-Gas",
+                "Gravity-Gravity",
+                "Kitsune-Kitsune",
+                "Leopard-Leopard",
+                "Mammoth-Mammoth",
+                "Pain-Pain",
+                "Rumble-Rumble",
+                "Shadow-Shadow",
+                "Spirit-Spirit",
+                "Venom-Venom",
+                "West Dragon-West Dragon",
+                "Yeti-Yeti",
+            },
+        },
     }
 }
-loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/4e642d77aaea43b209dd30201b64b3f8.lua"))()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/thebocchiskibidi/file/refs/heads/main/oneclick.lua"))()
