@@ -1,5 +1,5 @@
 getgenv().AutoRejon = true
-getgenv().AutoExecute = true
+getgenv().AutoExecute = false
 
 Config = Config or {
     Main = {
