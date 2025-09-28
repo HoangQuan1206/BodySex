@@ -59,7 +59,7 @@ getgenv().SettingFarm = {
     },
     ["Auto Summon Rip Indra"] = true,
     ["Select Hop"] = {
-        ["Hop Server If Have Player Near"] = true,
+        ["Hop Server If Have Player Near"] = false,
         ["Hop Find Rip Indra Get Valkyrie Helm or Get Tushita"] = true,
         ["Hop Find Dough King Get Mirror Fractal"] = true,
         ["Hop Find Raids Castle [CDK]"] = true,
