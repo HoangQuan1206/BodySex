@@ -13,19 +13,8 @@ if _G.FastAttack then
         return result
     end
 
-    local function WaitChilds(path, ...)
-        local last = path
-        for _, child in {...} do
-            last = last:FindFirstChild(child) or SafeWaitForChild(last, child)
-            if not last then break end
-        end
-        return last
-    end
-
     local VirtualInputManager = game:GetService("VirtualInputManager")
-    local CollectionService = game:GetService("CollectionService")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local TeleportService = game:GetService("TeleportService")
     local RunService = game:GetService("RunService")
     local Players = game:GetService("Players")
     local Player = Players.LocalPlayer
@@ -38,33 +27,12 @@ if _G.FastAttack then
     local Remotes = SafeWaitForChild(ReplicatedStorage, "Remotes")
     if not Remotes then return end
 
-    local Validator = SafeWaitForChild(Remotes, "Validator")
-    local CommF = SafeWaitForChild(Remotes, "CommF_")
-    local CommE = SafeWaitForChild(Remotes, "CommE")
-
-    local ChestModels = SafeWaitForChild(workspace, "ChestModels")
-    local WorldOrigin = SafeWaitForChild(workspace, "_WorldOrigin")
-    local Characters = SafeWaitForChild(workspace, "Characters")
-    local Enemies = SafeWaitForChild(workspace, "Enemies")
-    local Map = SafeWaitForChild(workspace, "Map")
-
-    local EnemySpawns = SafeWaitForChild(WorldOrigin, "EnemySpawns")
-    local Locations = SafeWaitForChild(WorldOrigin, "Locations")
-
-    local RenderStepped = RunService.RenderStepped
-    local Heartbeat = RunService.Heartbeat
-    local Stepped = RunService.Stepped
-
     local Modules = SafeWaitForChild(ReplicatedStorage, "Modules")
     local Net = SafeWaitForChild(Modules, "Net")
 
-    local sethiddenproperty = sethiddenproperty or function(...) return ... end
-    local setupvalue = setupvalue or (debug and debug.setupvalue)
-    local getupvalue = getupvalue or (debug and debug.getupvalue)
-
     local Settings = {
         AutoClick = true,
-        ClickDelay = 00000,1
+        ClickDelay = 0.1
     }
 
     local Module = {}
@@ -77,7 +45,7 @@ if _G.FastAttack then
         local FastAttack = {
             Distance = 100,
             attackMobs = true,
-            attackPlayers = true,
+            attackPlayers = false, -- tắt đánh player
             Equipped = nil
         }
 
@@ -85,7 +53,7 @@ if _G.FastAttack then
         local RegisterHit = SafeWaitForChild(Net, "RE/RegisterHit")
 
         local function IsAlive(character)
-        return character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0
+            return character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0
         end
 
         local function ProcessEnemies(OthersEnemies, Folder)
@@ -110,10 +78,10 @@ if _G.FastAttack then
 
         function FastAttack:AttackNearest()
             local OthersEnemies = {}
-            local Part1 = ProcessEnemies(OthersEnemies, Enemies)
-            local Part2 = ProcessEnemies(OthersEnemies, Characters)
+            -- chỉ check quái thôi, không check Characters nữa
+            local Part = ProcessEnemies(OthersEnemies, workspace:FindFirstChild("Enemies"))
             if #OthersEnemies > 0 then
-                self:Attack(Part1 or Part2, OthersEnemies)
+                self:Attack(Part, OthersEnemies)
             else
                 task.wait(0)
             end
