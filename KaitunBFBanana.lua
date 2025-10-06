@@ -97,32 +97,54 @@ getgenv().SettingFarm = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
--- Executor Info UI - Terminal Style (Simulator)
--- By Mario (mô phỏng / educational only)
--- Không chứa hàm detect/exploit. Thay đổi SIMULATED_EXECUTOR_NAME nếu muốn.
+-- Executor Info UI - Terminal Style (PlayerGui version) - By Mario (simulator)
+-- Dán và chạy trong executor. Mô phỏng; không chứa exploit.
 
-if game.CoreGui:FindFirstChild("ExecutorUI_Mario_Terminal") then
-    warn("ExecutorUI_Mario_Terminal already exists. Abort.")
+-- -- Config --
+local SIMULATED_EXECUTOR_NAME = "Potassium" -- đổi nếu muốn
+
+-- start
+print("[Mario UI] Script started")
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- wait localplayer
+if not LocalPlayer then
+    -- nếu chạy trong môi trường không có LocalPlayer (ví dụ chạy server), báo lỗi
+    warn("[Mario UI] No LocalPlayer found. This script must be run on client (LocalPlayer).")
     return
 end
 
-local SIMULATED_EXECUTOR_NAME = "Potassium" -- đổi nếu muốn
-local FONT_MAIN = Enum.Font.SourceSansBold
-local FONT_SUB = Enum.Font.SourceSans
+-- đảm bảo PlayerGui tồn tại
+local pg = LocalPlayer:WaitForChild("PlayerGui", 5)
+if not pg then
+    warn("[Mario UI] PlayerGui not found.")
+    return
+end
 
+-- Kiểm tra duplicate
+if pg:FindFirstChild("ExecutorUI_Mario_Terminal") then
+    warn("[Mario UI] ExecutorUI_Mario_Terminal already exists in PlayerGui. Abort.")
+    return
+end
+
+-- Tạo ScreenGui trong PlayerGui
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ExecutorUI_Mario_Terminal"
 ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = game.CoreGui
+ScreenGui.Parent = pg
+
+print("[Mario UI] ScreenGui parented to PlayerGui")
 
 -- Main frame
 local Frame = Instance.new("Frame")
 Frame.Name = "MainFrame"
 Frame.Parent = ScreenGui
 Frame.Size = UDim2.new(0, 340, 0, 110)
-Frame.Position = UDim2.new(1, -360, 1, -130) -- góc phải dưới
+Frame.Position = UDim2.new(1, -360, 1, -130) -- góc phải dưới, an toàn
 Frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-Frame.BackgroundTransparency = 1 -- sẽ fade-in
+Frame.BackgroundTransparency = 1 -- fade-in
 Frame.BorderSizePixel = 0
 Frame.Active = true
 Frame.ZIndex = 999
@@ -135,13 +157,14 @@ local UIStroke = Instance.new("UIStroke", Frame)
 UIStroke.Thickness = 3
 UIStroke.Color = Color3.fromRGB(255, 200, 60)
 
--- Fade-in background (smooth)
+-- Fade-in background
 task.spawn(function()
     local steps = 16
     for i = 1, steps do
-        Frame.BackgroundTransparency = 1 - (i / steps) * 0.85 -- kết quả nền mờ nhẹ
+        Frame.BackgroundTransparency = 1 - (i / steps) * 0.85
         task.wait(0.02)
     end
+    print("[Mario UI] Fade-in complete")
 end)
 
 -- Container for text
@@ -151,39 +174,38 @@ TextHolder.BackgroundTransparency = 1
 TextHolder.Size = UDim2.new(1, -12, 1, -12)
 TextHolder.Position = UDim2.new(0, 6, 0, 6)
 
--- Title (static)
+-- Title
 local Title = Instance.new("TextLabel", TextHolder)
 Title.Name = "Title"
 Title.BackgroundTransparency = 1
 Title.Size = UDim2.new(1, 0, 0, 24)
 Title.Position = UDim2.new(0, 0, 0, 0)
-Title.Font = FONT_MAIN
+Title.Font = Enum.Font.SourceSansBold
 Title.Text = "⚡ Executor Info | By Mario ⚡"
 Title.TextColor3 = Color3.fromRGB(255, 215, 0)
 Title.TextScaled = true
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Line area
+-- Lines frame
 local LinesFrame = Instance.new("Frame", TextHolder)
 LinesFrame.Name = "LinesFrame"
 LinesFrame.BackgroundTransparency = 1
 LinesFrame.Position = UDim2.new(0, 0, 0, 28)
 LinesFrame.Size = UDim2.new(1, 0, 1, -28)
 
--- Watermark small
+-- Watermark
 local Water = Instance.new("TextLabel", Frame)
 Water.Name = "Watermark"
 Water.BackgroundTransparency = 1
 Water.Size = UDim2.new(0, 200, 0, 18)
 Water.Position = UDim2.new(0, 8, 1, -22)
-Water.Font = FONT_SUB
+Water.Font = Enum.Font.SourceSans
 Water.Text = "Script by Mario"
 Water.TextColor3 = Color3.fromRGB(150, 150, 150)
-Water.TextScaled = false
 Water.TextSize = 14
 Water.TextXAlignment = Enum.TextXAlignment.Left
 
--- Terminal lines to display (mô phỏng)
+-- Lines to show
 local lines = {
     "Initializing Executor Info...",
     "Loading modules...",
@@ -192,65 +214,41 @@ local lines = {
     "Check complete. UI will remain on-screen."
 }
 
--- Function to create a text label line (initially empty)
 local function makeLine(parent, y)
     local lbl = Instance.new("TextLabel", parent)
     lbl.BackgroundTransparency = 1
     lbl.Size = UDim2.new(1, 0, 0, 18)
     lbl.Position = UDim2.new(0, 0, 0, y)
-    lbl.Font = FONT_SUB
+    lbl.Font = Enum.Font.SourceSans
     lbl.Text = ""
     lbl.TextColor3 = Color3.fromRGB(200, 255, 200)
-    lbl.TextScaled = false
     lbl.TextSize = 16
     lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.TextScaled = false
     return lbl
 end
 
--- prepare labels
 local labelList = {}
 for i = 1, #lines do
     labelList[i] = makeLine(LinesFrame, (i-1) * 20)
 end
 
--- Terminal typing effect: show each char with small delay, then next line
-local function typeLine(label, text, charDelay)
-    charDelay = charDelay or 0.015
-    label.Text = ""
-    for i = 1, #text do
-        local c = string.sub(text, i, i)
-        label.Text = label.Text .. c
-        task.wait(charDelay)
-    end
-end
-
--- Show lines sequentially, with slight pauses, and soundless
+-- typing effect
 task.spawn(function()
-    -- pre-delay for drama
-    task.wait(0.4)
+    task.wait(0.35)
     for i, txt in ipairs(lines) do
-        -- small "cursor" effect: append underscore while typing then remove
-        labelList[i].Text = ""
         for j = 1, #txt do
             labelList[i].Text = string.sub(txt, 1, j) .. "_"
-            task.wait(0.012 + (j/#txt)*0.006) -- tiny variable speed to feel natural
+            task.wait(0.012 + (j/#txt)*0.006)
         end
-        -- remove underscore and finalize
         labelList[i].Text = txt
-        -- wait between lines (longer after important status)
-        if i == 3 then
-            task.wait(0.35)
-        elseif i == 4 then
-            task.wait(0.7)
-        else
-            task.wait(0.25)
-        end
+        if i == 3 then task.wait(0.35) elseif i == 4 then task.wait(0.7) else task.wait(0.25) end
     end
-    -- final highlight: make status line slightly brighter
     labelList[4].TextColor3 = Color3.fromRGB(160, 255, 160)
+    print("[Mario UI] Typing effect complete")
 end)
 
--- Neon stroke color cycling
+-- neon color cycle
 task.spawn(function()
     local hue = 0
     while task.wait(0.04) do
@@ -259,9 +257,7 @@ task.spawn(function()
     end
 end)
 
--- Prevent duplicate (anti duplicate instance)
--- If UI exists (created earlier), this script returns at top.
--- Additional simple protection: if someone removes Frame, restore it.
+-- anti-duplicate: if removed, restore
 ScreenGui.DescendantRemoving:Connect(function(obj)
     if obj == Frame then
         task.spawn(function()
@@ -269,13 +265,13 @@ ScreenGui.DescendantRemoving:Connect(function(obj)
             if not ScreenGui:FindFirstChild("MainFrame") then
                 local clone = Frame:Clone()
                 clone.Parent = ScreenGui
-                warn("UI removed -> restored (Simulator).")
+                warn("[Mario UI] UI removed -> restored (simulator).")
             end
         end)
     end
 end)
 
--- Make draggable (optional but useful)
+-- draggable
 local function makeDraggable(frame)
     local dragging, dragInput, dragStart, startPos
     frame.InputBegan:Connect(function(input)
@@ -304,10 +300,4 @@ local function makeDraggable(frame)
 end
 makeDraggable(Frame)
 
--- Ready. UI stays on-screen.
-
-
-
-
-
-
+print("[Mario UI] UI created successfully and should be visible on screen.")
