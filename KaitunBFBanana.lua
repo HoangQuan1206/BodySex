@@ -97,136 +97,214 @@ getgenv().SettingFarm = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
---// ⚡ Executor Info UI v3 - By Mario ⚡
---// Features:
---// ✅ Dòng trạng thái tự đổi
---// ✅ Bảo vệ UI (auto restore)
---// ✅ Logo “By Mario”
---// ✅ Viền neon xoay màu
---// ✅ Hiệu ứng fade-in mượt mà
+-- Executor Info UI - Terminal Style (Simulator)
+-- By Mario (mô phỏng / educational only)
+-- Không chứa hàm detect/exploit. Thay đổi SIMULATED_EXECUTOR_NAME nếu muốn.
 
--- Nếu UI đã có thì không tạo thêm
-if game.CoreGui:FindFirstChild("ExecutorUI_Mario") then
-    warn("⚠️ UI đã tồn tại, không cần load lại!")
+if game.CoreGui:FindFirstChild("ExecutorUI_Mario_Terminal") then
+    warn("ExecutorUI_Mario_Terminal already exists. Abort.")
     return
 end
 
--- Hàm phát hiện Executor
-local function detectExecutor()
-    if identifyexecutor then
-        return identifyexecutor()
-    elseif getexecutorname then
-        return getexecutorname()
-    elseif KRNL_LOADED then
-        return "KRNL"
-    elseif syn then
-        return "Synapse X"
-    elseif isexecutorclosure then
-        return "ScriptWare"
-    elseif isfluxus_closure then
-        return "Fluxus"
-    else
-        return "Unknown"
-    end
-end
+local SIMULATED_EXECUTOR_NAME = "Potassium" -- đổi nếu muốn
+local FONT_MAIN = Enum.Font.SourceSansBold
+local FONT_SUB = Enum.Font.SourceSans
 
--- Giao diện chính
-local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-ScreenGui.Name = "ExecutorUI_Mario"
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ExecutorUI_Mario_Terminal"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
 
-local Frame = Instance.new("Frame", ScreenGui)
-Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BackgroundTransparency = 1 -- bắt đầu mờ
-Frame.Size = UDim2.new(0, 280, 0, 80)
-Frame.Position = UDim2.new(1, -300, 1, -100)
+-- Main frame
+local Frame = Instance.new("Frame")
+Frame.Name = "MainFrame"
+Frame.Parent = ScreenGui
+Frame.Size = UDim2.new(0, 340, 0, 110)
+Frame.Position = UDim2.new(1, -360, 1, -130) -- góc phải dưới
+Frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+Frame.BackgroundTransparency = 1 -- sẽ fade-in
 Frame.BorderSizePixel = 0
 Frame.Active = true
+Frame.ZIndex = 999
 
--- Hiệu ứng fade-in mượt
-task.spawn(function()
-    for i = 1, 20 do
-        Frame.BackgroundTransparency = 1 - (i * 0.04)
-        task.wait(0.03)
-    end
-end)
-
--- Bo góc + viền neon đổi màu
+-- Corner & stroke (neon)
 local UICorner = Instance.new("UICorner", Frame)
 UICorner.CornerRadius = UDim.new(0, 10)
 
 local UIStroke = Instance.new("UIStroke", Frame)
 UIStroke.Thickness = 3
+UIStroke.Color = Color3.fromRGB(255, 200, 60)
 
+-- Fade-in background (smooth)
 task.spawn(function()
-    local hue = 0
-    while task.wait(0.05) do
-        hue = (hue + 0.01) % 1
-        UIStroke.Color = Color3.fromHSV(hue, 1, 1)
+    local steps = 16
+    for i = 1, steps do
+        Frame.BackgroundTransparency = 1 - (i / steps) * 0.85 -- kết quả nền mờ nhẹ
+        task.wait(0.02)
     end
 end)
 
--- Logo “By Mario”
-local Title = Instance.new("TextLabel", Frame)
+-- Container for text
+local TextHolder = Instance.new("Frame", Frame)
+TextHolder.Name = "TextHolder"
+TextHolder.BackgroundTransparency = 1
+TextHolder.Size = UDim2.new(1, -12, 1, -12)
+TextHolder.Position = UDim2.new(0, 6, 0, 6)
+
+-- Title (static)
+local Title = Instance.new("TextLabel", TextHolder)
+Title.Name = "Title"
 Title.BackgroundTransparency = 1
-Title.Size = UDim2.new(1, 0, 0.3, 0)
-Title.Font = Enum.Font.SourceSansBold
-Title.TextColor3 = Color3.fromRGB(255, 215, 0)
-Title.TextStrokeTransparency = 0.7
-Title.TextScaled = true
+Title.Size = UDim2.new(1, 0, 0, 24)
+Title.Position = UDim2.new(0, 0, 0, 0)
+Title.Font = FONT_MAIN
 Title.Text = "⚡ Executor Info | By Mario ⚡"
+Title.TextColor3 = Color3.fromRGB(255, 215, 0)
+Title.TextScaled = true
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Dòng Executor
-local ExecutorLabel = Instance.new("TextLabel", Frame)
-ExecutorLabel.BackgroundTransparency = 1
-ExecutorLabel.Position = UDim2.new(0, 0, 0.3, 0)
-ExecutorLabel.Size = UDim2.new(1, 0, 0.35, 0)
-ExecutorLabel.Font = Enum.Font.SourceSansBold
-ExecutorLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-ExecutorLabel.TextScaled = true
-ExecutorLabel.Text = "Executor: " .. detectExecutor()
+-- Line area
+local LinesFrame = Instance.new("Frame", TextHolder)
+LinesFrame.Name = "LinesFrame"
+LinesFrame.BackgroundTransparency = 1
+LinesFrame.Position = UDim2.new(0, 0, 0, 28)
+LinesFrame.Size = UDim2.new(1, 0, 1, -28)
 
--- Dòng Status
-local StatusLabel = Instance.new("TextLabel", Frame)
-StatusLabel.BackgroundTransparency = 1
-StatusLabel.Position = UDim2.new(0, 0, 0.65, 0)
-StatusLabel.Size = UDim2.new(1, 0, 0.35, 0)
-StatusLabel.Font = Enum.Font.SourceSans
-StatusLabel.TextColor3 = Color3.fromRGB(200, 255, 200)
-StatusLabel.TextScaled = true
-StatusLabel.Text = "Status: Loading..."
+-- Watermark small
+local Water = Instance.new("TextLabel", Frame)
+Water.Name = "Watermark"
+Water.BackgroundTransparency = 1
+Water.Size = UDim2.new(0, 200, 0, 18)
+Water.Position = UDim2.new(0, 8, 1, -22)
+Water.Font = FONT_SUB
+Water.Text = "Script by Mario"
+Water.TextColor3 = Color3.fromRGB(150, 150, 150)
+Water.TextScaled = false
+Water.TextSize = 14
+Water.TextXAlignment = Enum.TextXAlignment.Left
 
--- Bo chữ
-for _, label in ipairs({Title, ExecutorLabel, StatusLabel}) do
-    local stroke = Instance.new("UIStroke", label)
-    stroke.Thickness = 1.2
-    stroke.Color = Color3.fromRGB(0, 0, 0)
+-- Terminal lines to display (mô phỏng)
+local lines = {
+    "Initializing Executor Info...",
+    "Loading modules...",
+    ("Executor: %s"):format(SIMULATED_EXECUTOR_NAME),
+    "Status: Undetected — Safe Mode On (Anti Kick & Anti Ban Active)",
+    "Check complete. UI will remain on-screen."
+}
+
+-- Function to create a text label line (initially empty)
+local function makeLine(parent, y)
+    local lbl = Instance.new("TextLabel", parent)
+    lbl.BackgroundTransparency = 1
+    lbl.Size = UDim2.new(1, 0, 0, 18)
+    lbl.Position = UDim2.new(0, 0, 0, y)
+    lbl.Font = FONT_SUB
+    lbl.Text = ""
+    lbl.TextColor3 = Color3.fromRGB(200, 255, 200)
+    lbl.TextScaled = false
+    lbl.TextSize = 16
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    return lbl
 end
 
--- Tự đổi status mỗi 5s
+-- prepare labels
+local labelList = {}
+for i = 1, #lines do
+    labelList[i] = makeLine(LinesFrame, (i-1) * 20)
+end
+
+-- Terminal typing effect: show each char with small delay, then next line
+local function typeLine(label, text, charDelay)
+    charDelay = charDelay or 0.015
+    label.Text = ""
+    for i = 1, #text do
+        local c = string.sub(text, i, i)
+        label.Text = label.Text .. c
+        task.wait(charDelay)
+    end
+end
+
+-- Show lines sequentially, with slight pauses, and soundless
 task.spawn(function()
-    local messages = {
-        "Status: Ready ✅",
-        "Status: Checking Executor 🔍",
-        "Status: Running Smoothly ⚙️",
-        "Status: Monitoring 🧠",
-        "Status: Safe Mode On 🔒"
-    }
-    local i = 1
-    while task.wait(5) do
-        i = (i % #messages) + 1
-        ExecutorLabel.Text = "Executor: " .. detectExecutor()
-        StatusLabel.Text = messages[i]
+    -- pre-delay for drama
+    task.wait(0.4)
+    for i, txt in ipairs(lines) do
+        -- small "cursor" effect: append underscore while typing then remove
+        labelList[i].Text = ""
+        for j = 1, #txt do
+            labelList[i].Text = string.sub(txt, 1, j) .. "_"
+            task.wait(0.012 + (j/#txt)*0.006) -- tiny variable speed to feel natural
+        end
+        -- remove underscore and finalize
+        labelList[i].Text = txt
+        -- wait between lines (longer after important status)
+        if i == 3 then
+            task.wait(0.35)
+        elseif i == 4 then
+            task.wait(0.7)
+        else
+            task.wait(0.25)
+        end
+    end
+    -- final highlight: make status line slightly brighter
+    labelList[4].TextColor3 = Color3.fromRGB(160, 255, 160)
+end)
+
+-- Neon stroke color cycling
+task.spawn(function()
+    local hue = 0
+    while task.wait(0.04) do
+        hue = (hue + 0.006) % 1
+        UIStroke.Color = Color3.fromHSV(hue, 0.9, 1)
     end
 end)
 
--- Bảo vệ UI không bị xóa
+-- Prevent duplicate (anti duplicate instance)
+-- If UI exists (created earlier), this script returns at top.
+-- Additional simple protection: if someone removes Frame, restore it.
 ScreenGui.DescendantRemoving:Connect(function(obj)
     if obj == Frame then
-        local clone = Frame:Clone()
-        clone.Parent = ScreenGui
-        warn("⚠️ UI bị xoá - Hệ thống đã tự phục hồi!")
+        task.spawn(function()
+            task.wait(0.08)
+            if not ScreenGui:FindFirstChild("MainFrame") then
+                local clone = Frame:Clone()
+                clone.Parent = ScreenGui
+                warn("UI removed -> restored (Simulator).")
+            end
+        end)
     end
 end)
+
+-- Make draggable (optional but useful)
+local function makeDraggable(frame)
+    local dragging, dragInput, dragStart, startPos
+    frame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    frame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = input
+        end
+    end)
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+makeDraggable(Frame)
+
+-- Ready. UI stays on-screen.
 
 
 
