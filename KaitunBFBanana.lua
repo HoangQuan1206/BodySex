@@ -97,15 +97,21 @@ getgenv().SettingFarm = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
---[[
-✨ Executor Info UI - Premium Version ✨
-Features:
-1️⃣ Tự phát hiện executor
-2️⃣ Hiển thị giờ hiện tại
-3️⃣ Auto cập nhật mỗi 5 giây
-4️⃣ Viền vàng neon + Nút ẩn/hiện UI
---]]
+--// ⚡ Executor Info UI v3 - By Mario ⚡
+--// Features:
+--// ✅ Dòng trạng thái tự đổi
+--// ✅ Bảo vệ UI (auto restore)
+--// ✅ Logo “By Mario”
+--// ✅ Viền neon xoay màu
+--// ✅ Hiệu ứng fade-in mượt mà
 
+-- Nếu UI đã có thì không tạo thêm
+if game.CoreGui:FindFirstChild("ExecutorUI_Mario") then
+    warn("⚠️ UI đã tồn tại, không cần load lại!")
+    return
+end
+
+-- Hàm phát hiện Executor
 local function detectExecutor()
     if identifyexecutor then
         return identifyexecutor()
@@ -126,83 +132,102 @@ end
 
 -- Giao diện chính
 local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
+ScreenGui.Name = "ExecutorUI_Mario"
+
 local Frame = Instance.new("Frame", ScreenGui)
-local ExecutorLabel = Instance.new("TextLabel", Frame)
-local TimeLabel = Instance.new("TextLabel", Frame)
-local ToggleButton = Instance.new("TextButton", ScreenGui)
-
--- Frame chính
 Frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Frame.BackgroundTransparency = 0.2
-Frame.Size = UDim2.new(0, 260, 0, 60)
-Frame.Position = UDim2.new(1, -280, 1, -80)
+Frame.BackgroundTransparency = 1 -- bắt đầu mờ
+Frame.Size = UDim2.new(0, 280, 0, 80)
+Frame.Position = UDim2.new(1, -300, 1, -100)
 Frame.BorderSizePixel = 0
+Frame.Active = true
 
--- Bo góc + viền
+-- Hiệu ứng fade-in mượt
+task.spawn(function()
+    for i = 1, 20 do
+        Frame.BackgroundTransparency = 1 - (i * 0.04)
+        task.wait(0.03)
+    end
+end)
+
+-- Bo góc + viền neon đổi màu
 local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.CornerRadius = UDim.new(0, 10)
 
 local UIStroke = Instance.new("UIStroke", Frame)
 UIStroke.Thickness = 3
-UIStroke.Color = Color3.fromRGB(255, 215, 0)
 
--- Hiệu ứng chuyển màu viền
 task.spawn(function()
     local hue = 0
     while task.wait(0.05) do
-        hue = hue + 0.01
-        if hue > 1 then hue = 0 end
+        hue = (hue + 0.01) % 1
         UIStroke.Color = Color3.fromHSV(hue, 1, 1)
     end
 end)
 
--- Label Executor
+-- Logo “By Mario”
+local Title = Instance.new("TextLabel", Frame)
+Title.BackgroundTransparency = 1
+Title.Size = UDim2.new(1, 0, 0.3, 0)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextColor3 = Color3.fromRGB(255, 215, 0)
+Title.TextStrokeTransparency = 0.7
+Title.TextScaled = true
+Title.Text = "⚡ Executor Info | By Mario ⚡"
+
+-- Dòng Executor
+local ExecutorLabel = Instance.new("TextLabel", Frame)
 ExecutorLabel.BackgroundTransparency = 1
-ExecutorLabel.Size = UDim2.new(1, 0, 0.5, 0)
+ExecutorLabel.Position = UDim2.new(0, 0, 0.3, 0)
+ExecutorLabel.Size = UDim2.new(1, 0, 0.35, 0)
 ExecutorLabel.Font = Enum.Font.SourceSansBold
 ExecutorLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 ExecutorLabel.TextScaled = true
 ExecutorLabel.Text = "Executor: " .. detectExecutor()
 
--- Label Time
-TimeLabel.BackgroundTransparency = 1
-TimeLabel.Position = UDim2.new(0, 0, 0.5, 0)
-TimeLabel.Size = UDim2.new(1, 0, 0.5, 0)
-TimeLabel.Font = Enum.Font.SourceSans
-TimeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-TimeLabel.TextScaled = true
-TimeLabel.Text = "Time: " .. os.date("%H:%M:%S")
+-- Dòng Status
+local StatusLabel = Instance.new("TextLabel", Frame)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Position = UDim2.new(0, 0, 0.65, 0)
+StatusLabel.Size = UDim2.new(1, 0, 0.35, 0)
+StatusLabel.Font = Enum.Font.SourceSans
+StatusLabel.TextColor3 = Color3.fromRGB(200, 255, 200)
+StatusLabel.TextScaled = true
+StatusLabel.Text = "Status: Loading..."
 
--- Nút ẩn/hiện UI
-ToggleButton.Text = "⚙️"
-ToggleButton.Font = Enum.Font.SourceSansBold
-ToggleButton.TextScaled = true
-ToggleButton.Size = UDim2.new(0, 40, 0, 40)
-ToggleButton.Position = UDim2.new(1, -60, 1, -60)
-ToggleButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-local CornerBtn = Instance.new("UICorner", ToggleButton)
-CornerBtn.CornerRadius = UDim.new(1, 0)
+-- Bo chữ
+for _, label in ipairs({Title, ExecutorLabel, StatusLabel}) do
+    local stroke = Instance.new("UIStroke", label)
+    stroke.Thickness = 1.2
+    stroke.Color = Color3.fromRGB(0, 0, 0)
+end
 
--- Bo viền nút
-local BtnStroke = Instance.new("UIStroke", ToggleButton)
-BtnStroke.Thickness = 2
-BtnStroke.Color = Color3.fromRGB(255, 215, 0)
-
--- Chức năng ẩn/hiện
-local visible = true
-ToggleButton.MouseButton1Click:Connect(function()
-    visible = not visible
-    Frame.Visible = visible
-end)
-
--- Auto cập nhật thông tin mỗi 5 giây
+-- Tự đổi status mỗi 5s
 task.spawn(function()
+    local messages = {
+        "Status: Ready ✅",
+        "Status: Checking Executor 🔍",
+        "Status: Running Smoothly ⚙️",
+        "Status: Monitoring 🧠",
+        "Status: Safe Mode On 🔒"
+    }
+    local i = 1
     while task.wait(5) do
+        i = (i % #messages) + 1
         ExecutorLabel.Text = "Executor: " .. detectExecutor()
-        TimeLabel.Text = "Time: " .. os.date("%H:%M:%S")
+        StatusLabel.Text = messages[i]
     end
 end)
+
+-- Bảo vệ UI không bị xóa
+ScreenGui.DescendantRemoving:Connect(function(obj)
+    if obj == Frame then
+        local clone = Frame:Clone()
+        clone.Parent = ScreenGui
+        warn("⚠️ UI bị xoá - Hệ thống đã tự phục hồi!")
+    end
+end)
+
 
 
 
