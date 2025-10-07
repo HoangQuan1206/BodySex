@@ -97,83 +97,78 @@ getgenv().SettingFarm = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
---// Executor Info UI | By Mario
+--// Executor Info UI | Final Version by Mario
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 
--- Xoá UI cũ nếu có
-if CoreGui:FindFirstChild("ExecutorInfoUI") then
-    CoreGui.ExecutorInfoUI:Destroy()
+-- Xóa UI cũ nếu có
+if CoreGui:FindFirstChild("ExecutorMiniUI") then
+    CoreGui.ExecutorMiniUI:Destroy()
 end
 
--- Tạo ScreenGui
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ExecutorInfoUI"
-ScreenGui.Parent = CoreGui
-ScreenGui.IgnoreGuiInset = true
-ScreenGui.ResetOnSpawn = false
+-- UI chính
+local gui = Instance.new("ScreenGui")
+gui.Name = "ExecutorMiniUI"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.Parent = CoreGui
 
--- Tạo khung chính
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 400, 0, 120)
-Frame.Position = UDim2.new(1, -410, 1, -140)
-Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-Frame.BorderSizePixel = 0
-Frame.Parent = ScreenGui
+-- Frame chính
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 270, 0, 95)
+frame.Position = UDim2.new(1, -280, 1, -115) -- góc phải dưới
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+frame.BorderSizePixel = 0
+frame.BackgroundTransparency = 1
+frame.Parent = gui
 
--- Viền bo vàng
-local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0, 14)
+-- Bo góc và viền vàng
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 10)
 
-local UIStroke = Instance.new("UIStroke", Frame)
-UIStroke.Thickness = 2
-UIStroke.Color = Color3.fromRGB(255, 200, 60)
+local stroke = Instance.new("UIStroke", frame)
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(255, 200, 60)
+stroke.Transparency = 1
 
--- Hiệu ứng mờ dần hiện ra
-Frame.BackgroundTransparency = 1
-UIStroke.Transparency = 1
-TweenService:Create(Frame, TweenInfo.new(0.8), {BackgroundTransparency = 0, UIStroke = {Transparency = 0}}):Play()
+-- Fade-in hiệu ứng
+TweenService:Create(frame, TweenInfo.new(0.5), {BackgroundTransparency = 0.05}):Play()
+TweenService:Create(stroke, TweenInfo.new(0.5), {Transparency = 0}):Play()
 
 -- Tiêu đề
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, -20, 0, 30)
-Title.Position = UDim2.new(0, 10, 0, 5)
-Title.BackgroundTransparency = 1
-Title.Font = Enum.Font.GothamBold
-Title.Text = "⚡ Executor Info | By Mario ⚡"
-Title.TextColor3 = Color3.fromRGB(255, 200, 60)
-Title.TextSize = 20
-Title.TextXAlignment = Enum.TextXAlignment.Left
-Title.Parent = Frame
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, -16, 0, 22)
+title.Position = UDim2.new(0, 8, 0, 5)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.Text = "⚡ Executor Info | By Mario"
+title.TextColor3 = Color3.fromRGB(255, 200, 60)
+title.TextSize = 15
+title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Nội dung
-local Info = Instance.new("TextLabel")
-Info.Size = UDim2.new(1, -20, 1, -50)
-Info.Position = UDim2.new(0, 10, 0, 40)
-Info.BackgroundTransparency = 1
-Info.Font = Enum.Font.GothamMedium
-Info.TextColor3 = Color3.fromRGB(230, 230, 230)
-Info.TextSize = 17
-Info.TextXAlignment = Enum.TextXAlignment.Left
-Info.TextYAlignment = Enum.TextYAlignment.Top
-Info.TextWrapped = true
-Info.Text = "Initializing Executor Info...\nLoading modules..."
-Info.Parent = Frame
+-- Nội dung (icon + text)
+local info = Instance.new("TextLabel", frame)
+info.Size = UDim2.new(1, -16, 1, -35)
+info.Position = UDim2.new(0, 8, 0, 30)
+info.BackgroundTransparency = 1
+info.Font = Enum.Font.GothamMedium
+info.TextColor3 = Color3.fromRGB(235, 235, 235)
+info.TextSize = 13
+info.TextXAlignment = Enum.TextXAlignment.Left
+info.TextYAlignment = Enum.TextYAlignment.Top
+info.TextWrapped = true
+info.Text = "Initializing Executor Info...\nLoading modules..."
 
--- Animation loading
-task.wait(1.2)
-Info.Text = "Executor: **Potassium**\nStatus: ✅ Undetected | Safe Mode ON 🔒 (Anti Kick & Anti Ban Active)"
-Info.Text = Info.Text:gsub("%*%*(.-)%*%*", "<b>%1</b>") -- bold support
+-- Hiệu ứng chuyển dần text
+task.wait(1)
+info.Text = "💻 Executor: **Potassium**\n🟢 Status: ✅ Undetected\n🔒 Mode: Safe Mode ON"
 
--- Fade-in hoàn tất
-local Complete = Instance.new("TextLabel")
-Complete.Size = UDim2.new(1, -20, 0, 20)
-Complete.Position = UDim2.new(0, 10, 1, -25)
-Complete.BackgroundTransparency = 1
-Complete.Font = Enum.Font.Gotham
-Complete.TextColor3 = Color3.fromRGB(170, 255, 200)
-Complete.TextSize = 14
-Complete.TextXAlignment = Enum.TextXAlignment.Left
-Complete.Text = "Check complete. UI will remain on-screen."
-Complete.Parent = Frame
+-- Hiệu ứng rung nhẹ khi hoàn tất
+TweenService:Create(frame, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+    Position = frame.Position + UDim2.new(0, 0, 0, -3)
+}):Play()
+task.wait(0.12)
+TweenService:Create(frame, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+    Position = UDim2.new(1, -280, 1, -115)
+}):Play()
 
