@@ -96,114 +96,108 @@ getgenv().SettingFarm = {
 }
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
---// Executor Info UI | English Version by Mario
+-- // Hop Server by Mario (UI Enhanced)
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local CoreGui = game:GetService("CoreGui")
-local TweenService = game:GetService("TweenService")
 
--- Remove old UI if exists
-if CoreGui:FindFirstChild("ExecutorHubUI") then
-	CoreGui.ExecutorHubUI:Destroy()
+local PlaceId = game.PlaceId
+local Player = Players.LocalPlayer
+
+-- // Get available servers
+function GetServers()
+    local url = ("https://games.roblox.com/v1/games/%s/servers/Public?sortOrder=Asc&limit=100"):format(PlaceId)
+    local Servers = {}
+    local success, response = pcall(function()
+        return HttpService:JSONDecode(game:HttpGet(url))
+    end)
+
+    if success and response and response.data then
+        for _, server in ipairs(response.data) do
+            if server.playing < server.maxPlayers then
+                table.insert(Servers, server.id)
+            end
+        end
+    end
+
+    return Servers
 end
 
--- Main UI
-local gui = Instance.new("ScreenGui")
-gui.Name = "ExecutorHubUI"
-gui.IgnoreGuiInset = true
-gui.ResetOnSpawn = false
-gui.Parent = CoreGui
-
--- Frame
-local frame = Instance.new("Frame", gui)
-frame.AnchorPoint = Vector2.new(1, 1)
-frame.Position = UDim2.new(1, -15, 1, -15)
-frame.Size = UDim2.new(0, 320, 0, 85)
-frame.BackgroundColor3 = Color3.fromRGB(20, 25, 30)
-frame.BorderSizePixel = 0
-
-local corner = Instance.new("UICorner", frame)
-corner.CornerRadius = UDim.new(0, 8)
-
-local stroke = Instance.new("UIStroke", frame)
-stroke.Thickness = 2
-stroke.Color = Color3.fromRGB(255, 200, 60)
-
--- Function to make text labels
-local function makeLabel(text, y)
-	local lbl = Instance.new("TextLabel", frame)
-	lbl.Size = UDim2.new(1, -20, 0, 22)
-	lbl.Position = UDim2.new(0, 10, 0, y)
-	lbl.BackgroundTransparency = 1
-	lbl.Font = Enum.Font.GothamBold
-	lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-	lbl.TextSize = 14
-	lbl.TextXAlignment = Enum.TextXAlignment.Left
-	lbl.TextTruncate = Enum.TextTruncate.AtEnd
-	lbl.Text = text
-	return lbl
+-- // Hop to random server
+function HopServer()
+    local Servers = GetServers()
+    if #Servers > 0 then
+        local RandomServer = Servers[math.random(1, #Servers)]
+        TeleportService:TeleportToPlaceInstance(PlaceId, RandomServer, Player)
+    else
+        warn("⚠️ No available servers found. Try again later.")
+    end
 end
 
--- Create text lines
-local line1 = makeLabel("Executor: 🔄 Checking...", 6)
-local line2 = makeLabel("Status: 🔄 Checking...", 30)
-local line3 = makeLabel("Safe Mode: 🔄 Turning on...", 54)
+-- // UI Setup
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Name = "HopServerUI"
 
--- Fade-in effect
-frame.BackgroundTransparency = 1
-for i = 1, 10 do
-	task.wait(0.05)
-	frame.BackgroundTransparency = 1 - i * 0.1
-end
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 60, 0, 60)
+Frame.Position = UDim2.new(1, -80, 1, -100)
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Frame.BorderSizePixel = 0
+Frame.BackgroundTransparency = 0.2
+Frame.Parent = ScreenGui
+Frame.Name = "HopButtonFrame"
+Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+Frame.ClipsDescendants = true
+Frame.Active = true
 
--- Simulate spinning animation for "Checking..."
-local spinner = {"|", "/", "-", "\\"}
-task.spawn(function()
-	while line1.Text:find("Checking") or line2.Text:find("Checking") or line3.Text:find("Turning") do
-		for _, sym in ipairs(spinner) do
-			if line1.Text:find("Checking") then
-				line1.Text = "Executor: 🔄 Checking " .. sym
-			end
-			if line2.Text:find("Checking") then
-				line2.Text = "Status: 🔄 Checking " .. sym
-			end
-			if line3.Text:find("Turning") then
-				line3.Text = "Safe Mode: 🔄 Turning on " .. sym
-			end
-			task.wait(0.1)
-		end
-	end
-end)
+local UICorner = Instance.new("UICorner", Frame)
+UICorner.CornerRadius = UDim.new(0, 50)
 
--- After 2 seconds, show actual info
-task.wait(2)
-line1.Text = "Executor: Potassium"
-line2.Text = "Status: ✅ Undetected"
-line3.Text = "Safe Mode: 🟢 Activated"
+local Icon = Instance.new("TextLabel")
+Icon.Parent = Frame
+Icon.Size = UDim2.new(1, 0, 1, 0)
+Icon.BackgroundTransparency = 1
+Icon.Text = "🌍"
+Icon.Font = Enum.Font.GothamBold
+Icon.TextScaled = true
+Icon.TextColor3 = Color3.fromRGB(255, 255, 255)
 
--- Check nearby players (safety detection)
-task.spawn(function()
-	while task.wait(1) do
-		local danger = false
-		for _, player in pairs(Players:GetPlayers()) do
-			if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-				local myChar = LocalPlayer.Character
-				if myChar and myChar:FindFirstChild("HumanoidRootPart") then
-					local dist = (player.Character.HumanoidRootPart.Position - myChar.HumanoidRootPart.Position).Magnitude
-					if dist < 20 then
-						danger = true
-						break
-					end
-				end
-			end
-		end
+-- // Loading Spinner
+local Spinner = Instance.new("ImageLabel")
+Spinner.Parent = Frame
+Spinner.Image = "rbxassetid://3926307971" -- Roblox loading spinner icon
+Spinner.ImageRectOffset = Vector2.new(628, 420)
+Spinner.ImageRectSize = Vector2.new(48, 48)
+Spinner.BackgroundTransparency = 1
+Spinner.AnchorPoint = Vector2.new(0.5, 0.5)
+Spinner.Position = UDim2.new(0.5, 0, 0.5, 0)
+Spinner.Size = UDim2.new(0, 35, 0, 35)
+Spinner.Visible = false
 
-		if danger then
-			line3.Text = "Safe Mode: ⚠️ Possibly unsafe (player nearby)"
-			line3.TextColor3 = Color3.fromRGB(255, 180, 80)
-		else
-			line3.Text = "Safe Mode: 🟢 Activated"
-			line3.TextColor3 = Color3.fromRGB(255, 255, 255)
-		end
-	end
+-- // Invisible button
+local Button = Instance.new("TextButton")
+Button.Parent = Frame
+Button.Size = UDim2.new(1, 0, 1, 0)
+Button.BackgroundTransparency = 1
+Button.Text = ""
+
+-- // Click event
+Button.MouseButton1Click:Connect(function()
+    Icon.Visible = false
+    Spinner.Visible = true
+
+    -- Rotation animation
+    local Rotating = true
+    task.spawn(function()
+        while Rotating and Spinner do
+            Spinner.Rotation = Spinner.Rotation + 10
+            task.wait(0.02)
+        end
+    end)
+
+    task.wait(0.8)
+    Icon.Text = "🌍"
+    Rotating = false
+    HopServer()
 end)
