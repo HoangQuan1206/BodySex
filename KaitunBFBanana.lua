@@ -96,15 +96,17 @@ getgenv().SettingFarm = {
 }
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
--- // Hop Server by Mario (UI Enhanced)
+-- // Hop Server Premium v2 by Mario
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
+local Stats = game:GetService("Stats")
 
 local PlaceId = game.PlaceId
 local Player = Players.LocalPlayer
+getgenv().LastServer = getgenv().LastServer or nil
 
--- // Get available servers
+-- // Lấy danh sách server
 function GetServers()
     local url = ("https://games.roblox.com/v1/games/%s/servers/Public?sortOrder=Asc&limit=100"):format(PlaceId)
     local Servers = {}
@@ -114,7 +116,7 @@ function GetServers()
 
     if success and response and response.data then
         for _, server in ipairs(response.data) do
-            if server.playing < server.maxPlayers then
+            if server.playing < server.maxPlayers and server.id ~= getgenv().LastServer then
                 table.insert(Servers, server.id)
             end
         end
@@ -123,87 +125,89 @@ function GetServers()
     return Servers
 end
 
--- // Hop to random server
+-- // Hop sang server khác
 function HopServer()
     local Servers = GetServers()
     if #Servers > 0 then
         local RandomServer = Servers[math.random(1, #Servers)]
+        getgenv().LastServer = RandomServer
         TeleportService:TeleportToPlaceInstance(PlaceId, RandomServer, Player)
     else
-        warn("⚠️ No available servers found. Try again later.")
+        warn("⚠️ Không tìm thấy server khả dụng, thử lại sau.")
     end
 end
 
--- // UI Setup
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = game.CoreGui
+-- // UI nhỏ góc phải
+local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
 ScreenGui.Name = "HopServerUI"
-
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 60, 0, 60)
-Frame.Position = UDim2.new(1, -80, 1, -100)
+local Frame = Instance.new("Frame", ScreenGui)
 Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-Frame.BorderSizePixel = 0
+Frame.Size = UDim2.new(0, 170, 0, 45)
+Frame.Position = UDim2.new(1, -180, 1, -70)
 Frame.BackgroundTransparency = 0.2
-Frame.Parent = ScreenGui
-Frame.Name = "HopButtonFrame"
-Frame.AnchorPoint = Vector2.new(0.5, 0.5)
-Frame.ClipsDescendants = true
-Frame.Active = true
+Frame.BorderSizePixel = 0
 
-local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0, 50)
+local Text = Instance.new("TextLabel", Frame)
+Text.Size = UDim2.new(1, 0, 1, 0)
+Text.Text = "🌍 Hop Server - by Mario"
+Text.TextColor3 = Color3.fromRGB(255, 255, 255)
+Text.Font = Enum.Font.GothamBold
+Text.TextScaled = true
+Text.BackgroundTransparency = 1
 
-local Icon = Instance.new("TextLabel")
-Icon.Parent = Frame
-Icon.Size = UDim2.new(1, 0, 1, 0)
-Icon.BackgroundTransparency = 1
-Icon.Text = "🌍"
-Icon.Font = Enum.Font.GothamBold
-Icon.TextScaled = true
-Icon.TextColor3 = Color3.fromRGB(255, 255, 255)
-
--- // Loading Spinner
-local Spinner = Instance.new("ImageLabel")
-Spinner.Parent = Frame
-Spinner.Image = "rbxassetid://3926307971" -- Roblox loading spinner icon
-Spinner.ImageRectOffset = Vector2.new(628, 420)
-Spinner.ImageRectSize = Vector2.new(48, 48)
-Spinner.BackgroundTransparency = 1
-Spinner.AnchorPoint = Vector2.new(0.5, 0.5)
-Spinner.Position = UDim2.new(0.5, 0, 0.5, 0)
-Spinner.Size = UDim2.new(0, 35, 0, 35)
-Spinner.Visible = false
-
--- // Invisible button
-local Button = Instance.new("TextButton")
-Button.Parent = Frame
+local Button = Instance.new("TextButton", Frame)
 Button.Size = UDim2.new(1, 0, 1, 0)
 Button.BackgroundTransparency = 1
 Button.Text = ""
 
--- // Click event
-Button.MouseButton1Click:Connect(function()
-    Icon.Visible = false
-    Spinner.Visible = true
-
-    -- Rotation animation
-    local Rotating = true
-    task.spawn(function()
-        while Rotating and Spinner do
-            Spinner.Rotation = Spinner.Rotation + 10
-            task.wait(0.02)
-        end
-    end)
-
-    task.wait(0.8)
-    Icon.Text = "🌍"
-    Rotating = false
-    HopServer()
+-- // Hiệu ứng Hover (sáng nhẹ khi trỏ chuột vào)
+Button.MouseEnter:Connect(function()
+    Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 20)
+end)
+Button.MouseLeave:Connect(function()
+    Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 end)
 
-    task.wait(0.8)
-    Icon.Text = "🌍"
-    Rotating = false
+-- // Thông báo nhỏ (toast)
+local function Toast(message)
+    local ToastFrame = Instance.new("Frame", ScreenGui)
+    ToastFrame.Size = UDim2.new(0, 250, 0, 35)
+    ToastFrame.Position = UDim2.new(1, -270, 1, -120)
+    ToastFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    ToastFrame.BorderSizePixel = 0
+    ToastFrame.BackgroundTransparency = 0.1
+
+    local TextLabel = Instance.new("TextLabel", ToastFrame)
+    TextLabel.Size = UDim2.new(1, 0, 1, 0)
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.Font = Enum.Font.GothamMedium
+    TextLabel.TextSize = 13
+    TextLabel.TextColor3 = Color3.fromRGB(255, 200, 60)
+    TextLabel.Text = message
+
+    game:GetService("TweenService"):Create(ToastFrame, TweenInfo.new(0.4), {BackgroundTransparency = 0}):Play()
+    task.wait(2)
+    game:GetService("TweenService"):Create(ToastFrame, TweenInfo.new(0.6), {BackgroundTransparency = 1}):Play()
+    task.wait(0.6)
+    ToastFrame:Destroy()
+end
+
+-- // Ping kiểm tra để auto hop
+task.spawn(function()
+    while task.wait(10) do
+        local ping = Stats.Network.ServerStatsItem["Data Ping"]:GetValue()
+        if ping > 300 then
+            Toast("⚠️ High ping detected ("..math.floor(ping).."ms)! Hopping...")
+            task.wait(1)
+            HopServer()
+        end
+    end
+end)
+
+-- // Nút click hop thủ công
+Button.MouseButton1Click:Connect(function()
+    Text.Text = "⏳ Switching server..."
+    Toast("🌍 Searching for new server...")
+    task.wait(1.5)
     HopServer()
 end)
