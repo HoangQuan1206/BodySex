@@ -201,3 +201,9 @@ Button.MouseButton1Click:Connect(function()
     Rotating = false
     HopServer()
 end)
+
+    task.wait(0.8)
+    Icon.Text = "🌍"
+    Rotating = false
+    HopServer()
+end)
