@@ -97,8 +97,10 @@ getgenv().SettingFarm = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
--- ⚡ Executor Info UI | Fixed Version ⚡
--- By Mario, edited for better layout
+-- ⚡ Executor Info UI | Animated Edition ⚡
+-- By Mario | Edited for smooth animation & cleaner look
+
+local TweenService = game:GetService("TweenService")
 
 local ScreenGui = Instance.new("ScreenGui")
 local MainFrame = Instance.new("Frame")
@@ -116,7 +118,7 @@ MainFrame.Size = UDim2.new(0, 400, 0, 140)
 MainFrame.Position = UDim2.new(0.5, -200, 0.8, 0)
 MainFrame.BackgroundTransparency = 0.25
 
--- 🟨 Outline (vàng)
+-- 🟨 Outline vàng
 local Outline = Instance.new("UIStroke")
 Outline.Thickness = 3
 Outline.Color = Color3.fromRGB(255, 200, 60)
@@ -131,7 +133,7 @@ Corner.Parent = MainFrame
 Title.Parent = MainFrame
 Title.BackgroundTransparency = 1
 Title.Text = "⚡ Executor Info | By Mario ⚡"
-Title.Font = Enum.Font.GothamBold -- có thể đổi sang Nunito nếu thích
+Title.Font = Enum.Font.GothamBold -- có thể đổi sang Enum.Font.Nunito nếu có
 Title.TextColor3 = Color3.fromRGB(255, 200, 60)
 Title.TextSize = 22
 Title.Position = UDim2.new(0, 15, 0, 10)
@@ -140,26 +142,43 @@ Title.TextXAlignment = Enum.TextXAlignment.Left
 -- 📋 Info Text
 InfoText.Parent = MainFrame
 InfoText.BackgroundTransparency = 1
-InfoText.Text = "Initializing Executor Info...\nLoading modules...\nExecutor: Potassium"
+InfoText.Text = "Initializing Executor Info..."
 InfoText.Font = Enum.Font.GothamMedium
 InfoText.TextColor3 = Color3.fromRGB(255, 255, 255)
 InfoText.TextSize = 18
-InfoText.Position = UDim2.new(0, 15, 0, 45)
+InfoText.Position = UDim2.new(0, 15, 0, 50)
 InfoText.TextXAlignment = Enum.TextXAlignment.Left
 InfoText.TextYAlignment = Enum.TextYAlignment.Top
 
 -- ✅ Status Text
 StatusText.Parent = MainFrame
 StatusText.BackgroundTransparency = 1
-StatusText.Text = "Status: ✅ Undetected | 🟡 Safe Mode ON 🔒"
+StatusText.Text = "Status: ⏳ Checking..."
 StatusText.Font = Enum.Font.GothamMedium
-StatusText.TextColor3 = Color3.fromRGB(60, 255, 100)
+StatusText.TextColor3 = Color3.fromRGB(200, 200, 200)
 StatusText.TextSize = 17
 StatusText.Position = UDim2.new(0, 15, 0, 105)
 StatusText.TextXAlignment = Enum.TextXAlignment.Left
 
--- ✨ Giả lập loading (ví dụ)
-task.wait(3)
+-- 💫 Hiệu ứng loading modules
+local dots = ""
+for i = 1, 3 do
+	InfoText.Text = "Loading modules" .. string.rep(".", i)
+	task.wait(0.5)
+end
+
+-- ✅ Sau khi load xong
+task.wait(0.3)
 InfoText.Text = "Executor: Potassium\nMode: 🟡 Safe Mode ON 🔒"
 
-print("✅ Executor Info UI Loaded Successfully")
+-- 🎨 Đổi màu trạng thái từ xám -> xanh lá mượt
+local tweenInfo = TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local colorGoal = {TextColor3 = Color3.fromRGB(60, 255, 100)}
+
+TweenService:Create(StatusText, tweenInfo, colorGoal):Play()
+
+-- ✅ Cập nhật text
+task.wait(0.6)
+StatusText.Text = "Status: ✅ Undetected | Safe Mode ON 🔒"
+
+print("✅ Executor Info UI Loaded Successfully!")
