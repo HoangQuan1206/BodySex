@@ -96,121 +96,114 @@ getgenv().SettingFarm = {
 }
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
--- 🌟 Executor Status UI by Oliver
--- Hiển thị thông tin executor gọn đẹp (chỉ để vui, không can thiệp game)
-
+--// Executor Info UI | English Version by Mario
 local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
-local Player = Players.LocalPlayer
 
-local ScreenGui = Instance.new("ScreenGui", Player:WaitForChild("PlayerGui"))
-ScreenGui.Name = "ExecutorStatusUI"
-
--- 📦 UI khung chính
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 230, 0, 120)
-Frame.Position = UDim2.new(1, -250, 1, -140)
-Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-Frame.BorderSizePixel = 0
-Frame.BackgroundTransparency = 0.25
-Frame.Parent = ScreenGui
-Frame.AnchorPoint = Vector2.new(0, 0)
-Frame.ClipsDescendants = true
-Frame.Visible = false
-Frame.ZIndex = 2
-
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 12)
-UICorner.Parent = Frame
-
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Thickness = 1.5
-UIStroke.Color = Color3.fromRGB(255, 200, 60)
-UIStroke.Parent = Frame
-
--- 🔤 Hàm tạo dòng có icon
-local function createLine(parent, text, y, iconId)
-	local icon = Instance.new("ImageLabel")
-	icon.Parent = parent
-	icon.BackgroundTransparency = 1
-	icon.Image = "rbxassetid://" .. iconId
-	icon.Size = UDim2.new(0, 16, 0, 16)
-	icon.Position = UDim2.new(0, 10, 0, y + 2)
-	icon.ImageColor3 = Color3.fromRGB(255, 200, 60)
-	icon.Visible = false
-
-	local label = Instance.new("TextLabel")
-	label.Parent = parent
-	label.BackgroundTransparency = 1
-	label.Size = UDim2.new(1, -40, 0, 20)
-	label.Position = UDim2.new(0, 35, 0, y)
-	label.Font = Enum.Font.GothamSemibold
-	label.TextSize = 14
-	label.TextColor3 = Color3.fromRGB(255, 255, 255)
-	label.TextXAlignment = Enum.TextXAlignment.Left
-	label.Text = text
-	label.Visible = false
-
-	return icon, label
+-- Remove old UI if exists
+if CoreGui:FindFirstChild("ExecutorHubUI") then
+	CoreGui.ExecutorHubUI:Destroy()
 end
 
--- 🧾 Các dòng hiển thị
-local title = Instance.new("TextLabel")
-title.Parent = Frame
-title.BackgroundTransparency = 1
-title.Size = UDim2.new(1, -20, 0, 20)
-title.Position = UDim2.new(0, 10, 0, 8)
-title.Font = Enum.Font.GothamBold
-title.TextSize = 16
-title.TextColor3 = Color3.fromRGB(255, 200, 60)
-title.TextXAlignment = Enum.TextXAlignment.Left
-title.Text = "Executor Status"
-title.Visible = false
+-- Main UI
+local gui = Instance.new("ScreenGui")
+gui.Name = "ExecutorHubUI"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.Parent = CoreGui
 
-local icon1, status = createLine(Frame, "Status: Checking...", 35, 6035047409) -- icon ⚙️
-local icon2, mode = createLine(Frame, "Mode: Loading...", 55, 6034767619)     -- icon 🧩
-local icon3, safety = createLine(Frame, "Security: Analyzing...", 75, 6035047401) -- icon 🛡️
+-- Frame
+local frame = Instance.new("Frame", gui)
+frame.AnchorPoint = Vector2.new(1, 1)
+frame.Position = UDim2.new(1, -15, 1, -15)
+frame.Size = UDim2.new(0, 320, 0, 85)
+frame.BackgroundColor3 = Color3.fromRGB(20, 25, 30)
+frame.BorderSizePixel = 0
 
--- ✨ Hàm hiệu ứng fade
-local function fade(obj, show)
-	local goal = {TextTransparency = show and 0 or 1, ImageTransparency = show and 0 or 1}
-	local tween = TweenService:Create(obj, TweenInfo.new(0.4, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), goal)
-	tween:Play()
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 8)
+
+local stroke = Instance.new("UIStroke", frame)
+stroke.Thickness = 2
+stroke.Color = Color3.fromRGB(255, 200, 60)
+
+-- Function to make text labels
+local function makeLabel(text, y)
+	local lbl = Instance.new("TextLabel", frame)
+	lbl.Size = UDim2.new(1, -20, 0, 22)
+	lbl.Position = UDim2.new(0, 10, 0, y)
+	lbl.BackgroundTransparency = 1
+	lbl.Font = Enum.Font.GothamBold
+	lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+	lbl.TextSize = 14
+	lbl.TextXAlignment = Enum.TextXAlignment.Left
+	lbl.TextTruncate = Enum.TextTruncate.AtEnd
+	lbl.Text = text
+	return lbl
 end
 
--- 🕓 Hiệu ứng khởi động
-task.wait(1)
-Frame.Visible = true
-TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quint), {BackgroundTransparency = 0.15}):Play()
+-- Create text lines
+local line1 = makeLabel("Executor: 🔄 Checking...", 6)
+local line2 = makeLabel("Status: 🔄 Checking...", 30)
+local line3 = makeLabel("Safe Mode: 🔄 Turning on...", 54)
 
-task.wait(0.2)
-title.Visible = true
-fade(title, true)
-
-for _, obj in ipairs({icon1, status, icon2, mode, icon3, safety}) do
-	task.wait(0.25)
-	obj.Visible = true
-	fade(obj, true)
-end
-
--- 🌀 Cập nhật trạng thái động
-task.wait(1)
-status.Text = "Status: Undetected ✅"
-mode.Text = "Mode: Activating Safe Mode..."
-task.wait(1.3)
-mode.Text = "Mode: ⚠️ Not sure if safe near players"
-task.wait(1)
-safety.Text = "Security: Protected ✓"
-
--- 💥 Rung nhẹ khi hoàn tất
-for i = 1, 3 do
-	TweenService:Create(Frame, TweenInfo.new(0.05), {Position = Frame.Position + UDim2.new(0, 3, 0, 0)}):Play()
+-- Fade-in effect
+frame.BackgroundTransparency = 1
+for i = 1, 10 do
 	task.wait(0.05)
-	TweenService:Create(Frame, TweenInfo.new(0.05), {Position = Frame.Position - UDim2.new(0, 6, 0, 0)}):Play()
-	task.wait(0.05)
+	frame.BackgroundTransparency = 1 - i * 0.1
 end
-TweenService:Create(Frame, TweenInfo.new(0.1), {Position = Frame.Position + UDim2.new(0, 3, 0, 0)}):Play()
 
-print("✅ UI Loaded Successfully")
+-- Simulate spinning animation for "Checking..."
+local spinner = {"|", "/", "-", "\\"}
+task.spawn(function()
+	while line1.Text:find("Checking") or line2.Text:find("Checking") or line3.Text:find("Turning") do
+		for _, sym in ipairs(spinner) do
+			if line1.Text:find("Checking") then
+				line1.Text = "Executor: 🔄 Checking " .. sym
+			end
+			if line2.Text:find("Checking") then
+				line2.Text = "Status: 🔄 Checking " .. sym
+			end
+			if line3.Text:find("Turning") then
+				line3.Text = "Safe Mode: 🔄 Turning on " .. sym
+			end
+			task.wait(0.1)
+		end
+	end
+end)
 
+-- After 2 seconds, show actual info
+task.wait(2)
+line1.Text = "Executor: Potassium"
+line2.Text = "Status: ✅ Undetected"
+line3.Text = "Safe Mode: 🟢 Activated"
 
+-- Check nearby players (safety detection)
+task.spawn(function()
+	while task.wait(1) do
+		local danger = false
+		for _, player in pairs(Players:GetPlayers()) do
+			if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+				local myChar = LocalPlayer.Character
+				if myChar and myChar:FindFirstChild("HumanoidRootPart") then
+					local dist = (player.Character.HumanoidRootPart.Position - myChar.HumanoidRootPart.Position).Magnitude
+					if dist < 20 then
+						danger = true
+						break
+					end
+				end
+			end
+		end
+
+		if danger then
+			line3.Text = "Safe Mode: ⚠️ Possibly unsafe (player nearby)"
+			line3.TextColor3 = Color3.fromRGB(255, 180, 80)
+		else
+			line3.Text = "Safe Mode: 🟢 Activated"
+			line3.TextColor3 = Color3.fromRGB(255, 255, 255)
+		end
+	end
+end)
