@@ -96,7 +96,6 @@ getgenv().SettingFarm = {
 }
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
 --// Executor Info UI | Final Version by Mario
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
