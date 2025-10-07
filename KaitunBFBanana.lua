@@ -97,207 +97,107 @@ getgenv().SettingFarm = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
--- Executor Info UI - Terminal Style (PlayerGui version) - By Mario (simulator)
--- Dán và chạy trong executor. Mô phỏng; không chứa exploit.
+-- Executor Info UI | By Mario
+-- Clean & Elegant Terminal Style
 
--- -- Config --
-local SIMULATED_EXECUTOR_NAME = "Potassium" -- đổi nếu muốn
+local executorName = "Potassium"
 
--- start
-print("[Mario UI] Script started")
+local player = game:GetService("Players").LocalPlayer
+local pg = player:WaitForChild("PlayerGui")
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
--- wait localplayer
-if not LocalPlayer then
-    -- nếu chạy trong môi trường không có LocalPlayer (ví dụ chạy server), báo lỗi
-    warn("[Mario UI] No LocalPlayer found. This script must be run on client (LocalPlayer).")
-    return
+if pg:FindFirstChild("ExecutorUI_Mario") then
+    pg.ExecutorUI_Mario:Destroy()
 end
 
--- đảm bảo PlayerGui tồn tại
-local pg = LocalPlayer:WaitForChild("PlayerGui", 5)
-if not pg then
-    warn("[Mario UI] PlayerGui not found.")
-    return
-end
+local ui = Instance.new("ScreenGui", pg)
+ui.Name = "ExecutorUI_Mario"
+ui.ResetOnSpawn = false
 
--- Kiểm tra duplicate
-if pg:FindFirstChild("ExecutorUI_Mario_Terminal") then
-    warn("[Mario UI] ExecutorUI_Mario_Terminal already exists in PlayerGui. Abort.")
-    return
-end
+local frame = Instance.new("Frame", ui)
+frame.Size = UDim2.new(0, 420, 0, 140)
+frame.Position = UDim2.new(1, -440, 1, -150)
+frame.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+frame.BackgroundTransparency = 0.08
+frame.BorderSizePixel = 0
 
--- Tạo ScreenGui trong PlayerGui
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "ExecutorUI_Mario_Terminal"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.Parent = pg
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 10)
 
-print("[Mario UI] ScreenGui parented to PlayerGui")
-
--- Main frame
-local Frame = Instance.new("Frame")
-Frame.Name = "MainFrame"
-Frame.Parent = ScreenGui
-Frame.Size = UDim2.new(0, 340, 0, 110)
-Frame.Position = UDim2.new(1, -360, 1, -130) -- góc phải dưới, an toàn
-Frame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-Frame.BackgroundTransparency = 1 -- fade-in
-Frame.BorderSizePixel = 0
-Frame.Active = true
-Frame.ZIndex = 999
-
--- Corner & stroke (neon)
-local UICorner = Instance.new("UICorner", Frame)
-UICorner.CornerRadius = UDim.new(0, 10)
-
-local UIStroke = Instance.new("UIStroke", Frame)
-UIStroke.Thickness = 3
-UIStroke.Color = Color3.fromRGB(255, 200, 60)
-
--- Fade-in background
-task.spawn(function()
-    local steps = 16
-    for i = 1, steps do
-        Frame.BackgroundTransparency = 1 - (i / steps) * 0.85
-        task.wait(0.02)
-    end
-    print("[Mario UI] Fade-in complete")
-end)
-
--- Container for text
-local TextHolder = Instance.new("Frame", Frame)
-TextHolder.Name = "TextHolder"
-TextHolder.BackgroundTransparency = 1
-TextHolder.Size = UDim2.new(1, -12, 1, -12)
-TextHolder.Position = UDim2.new(0, 6, 0, 6)
+local stroke = Instance.new("UIStroke", frame)
+stroke.Thickness = 3
+stroke.Color = Color3.fromRGB(255, 200, 60)
 
 -- Title
-local Title = Instance.new("TextLabel", TextHolder)
-Title.Name = "Title"
-Title.BackgroundTransparency = 1
-Title.Size = UDim2.new(1, 0, 0, 24)
-Title.Position = UDim2.new(0, 0, 0, 0)
-Title.Font = Enum.Font.SourceSansBold
-Title.Text = "⚡ Executor Info | By Mario ⚡"
-Title.TextColor3 = Color3.fromRGB(255, 215, 0)
-Title.TextScaled = true
-Title.TextXAlignment = Enum.TextXAlignment.Left
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, -20, 0, 28)
+title.Position = UDim2.new(0, 10, 0, 5)
+title.BackgroundTransparency = 1
+title.Font = Enum.Font.GothamBold
+title.Text = "⚡ Executor Info | By Mario ⚡"
+title.TextColor3 = Color3.fromRGB(255, 215, 60)
+title.TextScaled = true
+title.TextXAlignment = Enum.TextXAlignment.Left
 
--- Lines frame
-local LinesFrame = Instance.new("Frame", TextHolder)
-LinesFrame.Name = "LinesFrame"
-LinesFrame.BackgroundTransparency = 1
-LinesFrame.Position = UDim2.new(0, 0, 0, 28)
-LinesFrame.Size = UDim2.new(1, 0, 1, -28)
+-- Lines container
+local lines = Instance.new("Frame", frame)
+lines.Size = UDim2.new(1, -20, 1, -50)
+lines.Position = UDim2.new(0, 10, 0, 35)
+lines.BackgroundTransparency = 1
 
--- Watermark
-local Water = Instance.new("TextLabel", Frame)
-Water.Name = "Watermark"
-Water.BackgroundTransparency = 1
-Water.Size = UDim2.new(0, 200, 0, 18)
-Water.Position = UDim2.new(0, 8, 1, -22)
-Water.Font = Enum.Font.SourceSans
-Water.Text = "Script by Mario"
-Water.TextColor3 = Color3.fromRGB(150, 150, 150)
-Water.TextSize = 14
-Water.TextXAlignment = Enum.TextXAlignment.Left
-
--- Lines to show
-local lines = {
+local texts = {
     "Initializing Executor Info...",
     "Loading modules...",
-    ("Executor: %s"):format(SIMULATED_EXECUTOR_NAME),
-    "Status: Undetected — Safe Mode On (Anti Kick & Anti Ban Active)",
-    "Check complete. UI will remain on-screen."
+    "Executor: " .. executorName,
+    "Status: ✅ Undetected | Safe Mode ON 🔒 (Anti Kick & Anti Ban Active)"
 }
 
-local function makeLine(parent, y)
-    local lbl = Instance.new("TextLabel", parent)
-    lbl.BackgroundTransparency = 1
-    lbl.Size = UDim2.new(1, 0, 0, 18)
-    lbl.Position = UDim2.new(0, 0, 0, y)
-    lbl.Font = Enum.Font.SourceSans
-    lbl.Text = ""
-    lbl.TextColor3 = Color3.fromRGB(200, 255, 200)
-    lbl.TextSize = 16
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.TextScaled = false
-    return lbl
+local labels = {}
+for i, t in ipairs(texts) do
+    local l = Instance.new("TextLabel", lines)
+    l.Size = UDim2.new(1, 0, 0, 22)
+    l.Position = UDim2.new(0, 0, 0, (i - 1) * 24)
+    l.BackgroundTransparency = 1
+    l.Font = Enum.Font.Gotham
+    l.TextColor3 = Color3.fromRGB(235, 235, 235)
+    l.TextSize = 17
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Text = ""
+    labels[i] = l
 end
 
-local labelList = {}
-for i = 1, #lines do
-    labelList[i] = makeLine(LinesFrame, (i-1) * 20)
-end
+-- Watermark
+local watermark = Instance.new("TextLabel", frame)
+watermark.Size = UDim2.new(1, -20, 0, 20)
+watermark.Position = UDim2.new(0, 10, 1, -24)
+watermark.BackgroundTransparency = 1
+watermark.Font = Enum.Font.Gotham
+watermark.Text = "Script by Mario"
+watermark.TextColor3 = Color3.fromRGB(150, 150, 150)
+watermark.TextSize = 14
+watermark.TextXAlignment = Enum.TextXAlignment.Left
 
--- typing effect
+-- Typing animation
 task.spawn(function()
-    task.wait(0.35)
-    for i, txt in ipairs(lines) do
-        for j = 1, #txt do
-            labelList[i].Text = string.sub(txt, 1, j) .. "_"
-            task.wait(0.012 + (j/#txt)*0.006)
+    for i, text in ipairs(texts) do
+        for c = 1, #text do
+            labels[i].Text = string.sub(text, 1, c)
+            task.wait(0.02)
         end
-        labelList[i].Text = txt
-        if i == 3 then task.wait(0.35) elseif i == 4 then task.wait(0.7) else task.wait(0.25) end
+        task.wait(0.25)
     end
-    labelList[4].TextColor3 = Color3.fromRGB(160, 255, 160)
-    print("[Mario UI] Typing effect complete")
+    labels[4].TextColor3 = Color3.fromRGB(100, 255, 130)
 end)
 
--- neon color cycle
-task.spawn(function()
-    local hue = 0
-    while task.wait(0.04) do
-        hue = (hue + 0.006) % 1
-        UIStroke.Color = Color3.fromHSV(hue, 0.9, 1)
-    end
-end)
-
--- anti-duplicate: if removed, restore
-ScreenGui.DescendantRemoving:Connect(function(obj)
-    if obj == Frame then
-        task.spawn(function()
-            task.wait(0.08)
-            if not ScreenGui:FindFirstChild("MainFrame") then
-                local clone = Frame:Clone()
-                clone.Parent = ScreenGui
-                warn("[Mario UI] UI removed -> restored (simulator).")
-            end
-        end)
-    end
-end)
-
--- draggable
-local function makeDraggable(frame)
-    local dragging, dragInput, dragStart, startPos
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
-    end)
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
+-- Fade in
+frame.BackgroundTransparency = 1
+for i = 1, 15 do
+    frame.BackgroundTransparency = 1 - (i / 15) * 0.92
+    task.wait(0.02)
 end
-makeDraggable(Frame)
 
-print("[Mario UI] UI created successfully and should be visible on screen.")
+-- Viền vàng nhẹ animate
+task.spawn(function()
+    while task.wait(0.05) do
+        stroke.Color = Color3.fromRGB(255, 200 + math.sin(tick()*2)*20, 60)
+    end
+end)
