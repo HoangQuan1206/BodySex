@@ -97,107 +97,69 @@ getgenv().SettingFarm = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
--- Executor Info UI | By Mario
--- Clean & Elegant Terminal Style
+-- ⚡ Executor Info UI | Fixed Version ⚡
+-- By Mario, edited for better layout
 
-local executorName = "Potassium"
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Title = Instance.new("TextLabel")
+local InfoText = Instance.new("TextLabel")
+local StatusText = Instance.new("TextLabel")
 
-local player = game:GetService("Players").LocalPlayer
-local pg = player:WaitForChild("PlayerGui")
+ScreenGui.Parent = game:GetService("CoreGui")
 
-if pg:FindFirstChild("ExecutorUI_Mario") then
-    pg.ExecutorUI_Mario:Destroy()
-end
+-- 🟨 Main Frame
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BorderSizePixel = 0
+MainFrame.Size = UDim2.new(0, 400, 0, 140)
+MainFrame.Position = UDim2.new(0.5, -200, 0.8, 0)
+MainFrame.BackgroundTransparency = 0.25
 
-local ui = Instance.new("ScreenGui", pg)
-ui.Name = "ExecutorUI_Mario"
-ui.ResetOnSpawn = false
+-- 🟨 Outline (vàng)
+local Outline = Instance.new("UIStroke")
+Outline.Thickness = 3
+Outline.Color = Color3.fromRGB(255, 200, 60)
+Outline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+Outline.Parent = MainFrame
 
-local frame = Instance.new("Frame", ui)
-frame.Size = UDim2.new(0, 420, 0, 140)
-frame.Position = UDim2.new(1, -440, 1, -150)
-frame.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
-frame.BackgroundTransparency = 0.08
-frame.BorderSizePixel = 0
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 10)
+Corner.Parent = MainFrame
 
-local corner = Instance.new("UICorner", frame)
-corner.CornerRadius = UDim.new(0, 10)
+-- ⚡ Title
+Title.Parent = MainFrame
+Title.BackgroundTransparency = 1
+Title.Text = "⚡ Executor Info | By Mario ⚡"
+Title.Font = Enum.Font.GothamBold -- có thể đổi sang Nunito nếu thích
+Title.TextColor3 = Color3.fromRGB(255, 200, 60)
+Title.TextSize = 22
+Title.Position = UDim2.new(0, 15, 0, 10)
+Title.TextXAlignment = Enum.TextXAlignment.Left
 
-local stroke = Instance.new("UIStroke", frame)
-stroke.Thickness = 3
-stroke.Color = Color3.fromRGB(255, 200, 60)
+-- 📋 Info Text
+InfoText.Parent = MainFrame
+InfoText.BackgroundTransparency = 1
+InfoText.Text = "Initializing Executor Info...\nLoading modules...\nExecutor: Potassium"
+InfoText.Font = Enum.Font.GothamMedium
+InfoText.TextColor3 = Color3.fromRGB(255, 255, 255)
+InfoText.TextSize = 18
+InfoText.Position = UDim2.new(0, 15, 0, 45)
+InfoText.TextXAlignment = Enum.TextXAlignment.Left
+InfoText.TextYAlignment = Enum.TextYAlignment.Top
 
--- Title
-local title = Instance.new("TextLabel", frame)
-title.Size = UDim2.new(1, -20, 0, 28)
-title.Position = UDim2.new(0, 10, 0, 5)
-title.BackgroundTransparency = 1
-title.Font = Enum.Font.GothamBold
-title.Text = "⚡ Executor Info | By Mario ⚡"
-title.TextColor3 = Color3.fromRGB(255, 215, 60)
-title.TextScaled = true
-title.TextXAlignment = Enum.TextXAlignment.Left
+-- ✅ Status Text
+StatusText.Parent = MainFrame
+StatusText.BackgroundTransparency = 1
+StatusText.Text = "Status: ✅ Undetected | 🟡 Safe Mode ON 🔒"
+StatusText.Font = Enum.Font.GothamMedium
+StatusText.TextColor3 = Color3.fromRGB(60, 255, 100)
+StatusText.TextSize = 17
+StatusText.Position = UDim2.new(0, 15, 0, 105)
+StatusText.TextXAlignment = Enum.TextXAlignment.Left
 
--- Lines container
-local lines = Instance.new("Frame", frame)
-lines.Size = UDim2.new(1, -20, 1, -50)
-lines.Position = UDim2.new(0, 10, 0, 35)
-lines.BackgroundTransparency = 1
+-- ✨ Giả lập loading (ví dụ)
+task.wait(3)
+InfoText.Text = "Executor: Potassium\nMode: 🟡 Safe Mode ON 🔒"
 
-local texts = {
-    "Initializing Executor Info...",
-    "Loading modules...",
-    "Executor: " .. executorName,
-    "Status: ✅ Undetected | Safe Mode ON 🔒 (Anti Kick & Anti Ban Active)"
-}
-
-local labels = {}
-for i, t in ipairs(texts) do
-    local l = Instance.new("TextLabel", lines)
-    l.Size = UDim2.new(1, 0, 0, 22)
-    l.Position = UDim2.new(0, 0, 0, (i - 1) * 24)
-    l.BackgroundTransparency = 1
-    l.Font = Enum.Font.Gotham
-    l.TextColor3 = Color3.fromRGB(235, 235, 235)
-    l.TextSize = 17
-    l.TextXAlignment = Enum.TextXAlignment.Left
-    l.Text = ""
-    labels[i] = l
-end
-
--- Watermark
-local watermark = Instance.new("TextLabel", frame)
-watermark.Size = UDim2.new(1, -20, 0, 20)
-watermark.Position = UDim2.new(0, 10, 1, -24)
-watermark.BackgroundTransparency = 1
-watermark.Font = Enum.Font.Gotham
-watermark.Text = "Script by Mario"
-watermark.TextColor3 = Color3.fromRGB(150, 150, 150)
-watermark.TextSize = 14
-watermark.TextXAlignment = Enum.TextXAlignment.Left
-
--- Typing animation
-task.spawn(function()
-    for i, text in ipairs(texts) do
-        for c = 1, #text do
-            labels[i].Text = string.sub(text, 1, c)
-            task.wait(0.02)
-        end
-        task.wait(0.25)
-    end
-    labels[4].TextColor3 = Color3.fromRGB(100, 255, 130)
-end)
-
--- Fade in
-frame.BackgroundTransparency = 1
-for i = 1, 15 do
-    frame.BackgroundTransparency = 1 - (i / 15) * 0.92
-    task.wait(0.02)
-end
-
--- Viền vàng nhẹ animate
-task.spawn(function()
-    while task.wait(0.05) do
-        stroke.Color = Color3.fromRGB(255, 200 + math.sin(tick()*2)*20, 60)
-    end
-end)
+print("✅ Executor Info UI Loaded Successfully")
