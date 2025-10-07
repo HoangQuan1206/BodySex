@@ -161,7 +161,7 @@ info.Text = "Initializing Executor Info...\nLoading modules..."
 
 -- Hiệu ứng chuyển dần text
 task.wait(1)
-info.Text = "💻 Executor: **Potassium**\n🟢 Status: ✅ Undetected\n🔒 Mode: Safe Mode ON"
+info.Text = "💻 Executor: Potassium\n🟢 Status: ✅ Undetected\n🔒 Mode: Safe Mode ON"
 
 -- Hiệu ứng rung nhẹ khi hoàn tất
 TweenService:Create(frame, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
