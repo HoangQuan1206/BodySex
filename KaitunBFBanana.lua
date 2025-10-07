@@ -97,88 +97,83 @@ getgenv().SettingFarm = {
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/obiiyeuem/vthangsitink/main/BananaCat-kaitunBF.lua"))()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/HoangQuan1206/BodySex/refs/heads/main/acceptfirned"))()
--- ⚡ Executor Info UI | Animated Edition ⚡
--- By Mario | Edited for smooth animation & cleaner look
-
+--// Executor Info UI | By Mario
+local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
 
-local ScreenGui = Instance.new("ScreenGui")
-local MainFrame = Instance.new("Frame")
-local Title = Instance.new("TextLabel")
-local InfoText = Instance.new("TextLabel")
-local StatusText = Instance.new("TextLabel")
-
-ScreenGui.Parent = game:GetService("CoreGui")
-
--- 🟨 Main Frame
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
-MainFrame.BorderSizePixel = 0
-MainFrame.Size = UDim2.new(0, 400, 0, 140)
-MainFrame.Position = UDim2.new(0.5, -200, 0.8, 0)
-MainFrame.BackgroundTransparency = 0.25
-
--- 🟨 Outline vàng
-local Outline = Instance.new("UIStroke")
-Outline.Thickness = 3
-Outline.Color = Color3.fromRGB(255, 200, 60)
-Outline.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-Outline.Parent = MainFrame
-
-local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(0, 10)
-Corner.Parent = MainFrame
-
--- ⚡ Title
-Title.Parent = MainFrame
-Title.BackgroundTransparency = 1
-Title.Text = "⚡ Executor Info | By Mario ⚡"
-Title.Font = Enum.Font.GothamBold -- có thể đổi sang Enum.Font.Nunito nếu có
-Title.TextColor3 = Color3.fromRGB(255, 200, 60)
-Title.TextSize = 22
-Title.Position = UDim2.new(0, 15, 0, 10)
-Title.TextXAlignment = Enum.TextXAlignment.Left
-
--- 📋 Info Text
-InfoText.Parent = MainFrame
-InfoText.BackgroundTransparency = 1
-InfoText.Text = "Initializing Executor Info..."
-InfoText.Font = Enum.Font.GothamMedium
-InfoText.TextColor3 = Color3.fromRGB(255, 255, 255)
-InfoText.TextSize = 18
-InfoText.Position = UDim2.new(0, 15, 0, 50)
-InfoText.TextXAlignment = Enum.TextXAlignment.Left
-InfoText.TextYAlignment = Enum.TextYAlignment.Top
-
--- ✅ Status Text
-StatusText.Parent = MainFrame
-StatusText.BackgroundTransparency = 1
-StatusText.Text = "Status: ⏳ Checking..."
-StatusText.Font = Enum.Font.GothamMedium
-StatusText.TextColor3 = Color3.fromRGB(200, 200, 200)
-StatusText.TextSize = 17
-StatusText.Position = UDim2.new(0, 15, 0, 105)
-StatusText.TextXAlignment = Enum.TextXAlignment.Left
-
--- 💫 Hiệu ứng loading modules
-local dots = ""
-for i = 1, 3 do
-	InfoText.Text = "Loading modules" .. string.rep(".", i)
-	task.wait(0.5)
+-- Xoá UI cũ nếu có
+if CoreGui:FindFirstChild("ExecutorInfoUI") then
+    CoreGui.ExecutorInfoUI:Destroy()
 end
 
--- ✅ Sau khi load xong
-task.wait(0.3)
-InfoText.Text = "Executor: Potassium\nMode: 🟡 Safe Mode ON 🔒"
+-- Tạo ScreenGui
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ExecutorInfoUI"
+ScreenGui.Parent = CoreGui
+ScreenGui.IgnoreGuiInset = true
+ScreenGui.ResetOnSpawn = false
 
--- 🎨 Đổi màu trạng thái từ xám -> xanh lá mượt
-local tweenInfo = TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local colorGoal = {TextColor3 = Color3.fromRGB(60, 255, 100)}
+-- Tạo khung chính
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 400, 0, 120)
+Frame.Position = UDim2.new(1, -410, 1, -140)
+Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Frame.BorderSizePixel = 0
+Frame.Parent = ScreenGui
 
-TweenService:Create(StatusText, tweenInfo, colorGoal):Play()
+-- Viền bo vàng
+local UICorner = Instance.new("UICorner", Frame)
+UICorner.CornerRadius = UDim.new(0, 14)
 
--- ✅ Cập nhật text
-task.wait(0.6)
-StatusText.Text = "Status: ✅ Undetected | Safe Mode ON 🔒"
+local UIStroke = Instance.new("UIStroke", Frame)
+UIStroke.Thickness = 2
+UIStroke.Color = Color3.fromRGB(255, 200, 60)
 
-print("✅ Executor Info UI Loaded Successfully!")
+-- Hiệu ứng mờ dần hiện ra
+Frame.BackgroundTransparency = 1
+UIStroke.Transparency = 1
+TweenService:Create(Frame, TweenInfo.new(0.8), {BackgroundTransparency = 0, UIStroke = {Transparency = 0}}):Play()
+
+-- Tiêu đề
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, -20, 0, 30)
+Title.Position = UDim2.new(0, 10, 0, 5)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+Title.Text = "⚡ Executor Info | By Mario ⚡"
+Title.TextColor3 = Color3.fromRGB(255, 200, 60)
+Title.TextSize = 20
+Title.TextXAlignment = Enum.TextXAlignment.Left
+Title.Parent = Frame
+
+-- Nội dung
+local Info = Instance.new("TextLabel")
+Info.Size = UDim2.new(1, -20, 1, -50)
+Info.Position = UDim2.new(0, 10, 0, 40)
+Info.BackgroundTransparency = 1
+Info.Font = Enum.Font.GothamMedium
+Info.TextColor3 = Color3.fromRGB(230, 230, 230)
+Info.TextSize = 17
+Info.TextXAlignment = Enum.TextXAlignment.Left
+Info.TextYAlignment = Enum.TextYAlignment.Top
+Info.TextWrapped = true
+Info.Text = "Initializing Executor Info...\nLoading modules..."
+Info.Parent = Frame
+
+-- Animation loading
+task.wait(1.2)
+Info.Text = "Executor: **Potassium**\nStatus: ✅ Undetected | Safe Mode ON 🔒 (Anti Kick & Anti Ban Active)"
+Info.Text = Info.Text:gsub("%*%*(.-)%*%*", "<b>%1</b>") -- bold support
+
+-- Fade-in hoàn tất
+local Complete = Instance.new("TextLabel")
+Complete.Size = UDim2.new(1, -20, 0, 20)
+Complete.Position = UDim2.new(0, 10, 1, -25)
+Complete.BackgroundTransparency = 1
+Complete.Font = Enum.Font.Gotham
+Complete.TextColor3 = Color3.fromRGB(170, 255, 200)
+Complete.TextSize = 14
+Complete.TextXAlignment = Enum.TextXAlignment.Left
+Complete.Text = "Check complete. UI will remain on-screen."
+Complete.Parent = Frame
+
